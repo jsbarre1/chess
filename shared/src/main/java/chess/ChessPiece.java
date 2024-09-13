@@ -65,6 +65,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new ArrayList<>();
+
         //white team
         if(pieceType == PieceType.PAWN && teamColor == ChessGame.TeamColor.WHITE) {
             //+1 row, column
@@ -111,6 +112,74 @@ public class ChessPiece {
             }
             if(upAndRightPiece != null && upAndRightPiece.teamColor == ChessGame.TeamColor.BLACK){
                 validMoves.add(new ChessMove(myPosition, upAndRight, null));
+            }
+        }
+        if(pieceType == PieceType.ROOK && teamColor == ChessGame.TeamColor.WHITE) {
+            //left
+            for (int i = myPosition.getColumn(); i > 0; i--) {
+                ChessPosition leftPosition = new ChessPosition(myPosition.getRow(), i);
+                ChessPiece leftPiece = board.getPiece(leftPosition);
+                if(leftPosition.getColumn() == myPosition.getColumn() && leftPosition.getRow() == myPosition.getRow()){
+                    continue;
+                }
+                if(leftPiece != null && leftPiece.teamColor == ChessGame.TeamColor.BLACK){
+                    validMoves.add(new ChessMove(myPosition, leftPosition, null));
+                    break;
+                } else if (leftPiece != null && leftPiece.teamColor == ChessGame.TeamColor.WHITE) {
+                    break;
+                }
+                System.out.println("adding possible move: "+ leftPosition.getRow() + "," +leftPosition.getColumn());
+                validMoves.add(new ChessMove(myPosition, leftPosition, null));
+            }
+            //right
+            for (int i = myPosition.getColumn(); i < 9; i++) {
+                ChessPosition rightPosition = new ChessPosition(myPosition.getRow(), i);
+                ChessPiece rightPiece = board.getPiece(rightPosition);
+                if(rightPosition.getColumn() == myPosition.getColumn() && rightPosition.getRow() == myPosition.getRow()){
+                    continue;
+                }
+                if(rightPiece != null && rightPiece.teamColor == ChessGame.TeamColor.BLACK){
+                    validMoves.add(new ChessMove(myPosition, rightPosition, null));
+                    break;
+                } else if (rightPiece != null && rightPiece.teamColor == ChessGame.TeamColor.WHITE) {
+                    break;
+                }
+                validMoves.add(new ChessMove(myPosition, rightPosition, null));
+                System.out.println("adding possible move: "+ rightPosition.getRow() + "," +rightPosition.getColumn());
+
+            }
+            //up (same logic as right)
+            for (int i = myPosition.getRow(); i < 9; i++) {
+                ChessPosition upPosition = new ChessPosition(i, myPosition.getColumn());
+                ChessPiece upPiece = board.getPiece(upPosition);
+                if(upPosition.getColumn() == myPosition.getColumn() && upPosition.getRow() == myPosition.getRow()){
+                    continue;
+                }
+                if(upPiece != null && upPiece.teamColor == ChessGame.TeamColor.BLACK){
+                    validMoves.add(new ChessMove(myPosition, upPosition, null));
+                    break;
+                } else if (upPiece != null && upPiece.teamColor == ChessGame.TeamColor.WHITE ) {
+                    break;
+                }
+                System.out.println("adding possible move: "+ upPosition.getRow() + "," +upPosition.getColumn());
+                validMoves.add(new ChessMove(myPosition, upPosition, null));
+            }
+            //down (same logic as left)
+            for (int i = myPosition.getRow(); i > 0; i--) {
+                ChessPosition downPosition = new ChessPosition(i, myPosition.getColumn());
+                ChessPiece downPiece = board.getPiece(downPosition);
+                if(downPosition.getColumn() == myPosition.getColumn() && downPosition.getRow() == myPosition.getRow()){
+                    continue;
+                }
+                if(downPiece != null && downPiece.teamColor == ChessGame.TeamColor.BLACK){
+                    validMoves.add(new ChessMove(myPosition, downPosition, null));
+                    break;
+                } else if (downPiece != null && downPiece.teamColor == ChessGame.TeamColor.WHITE ) {
+                    break;
+                }
+                System.out.println("adding possible move: "+ downPosition.getRow() + "," +downPosition.getColumn());
+
+                validMoves.add(new ChessMove(myPosition, downPosition, null));
             }
         }
 
@@ -164,7 +233,74 @@ public class ChessPiece {
                 validMoves.add(new ChessMove(myPosition, downAndRight, null));
             }
         }
+        if(pieceType == PieceType.ROOK && teamColor == ChessGame.TeamColor.BLACK) {
+            //left
+            for (int i = myPosition.getColumn(); i > 0; i--) {
+                ChessPosition leftPosition = new ChessPosition(myPosition.getRow(), i);
+                ChessPiece leftPiece = board.getPiece(leftPosition);
+                if(leftPosition.getColumn() == myPosition.getColumn() && leftPosition.getRow() == myPosition.getRow()){
+                    continue;
+                }
+                if(leftPiece != null && leftPiece.teamColor == ChessGame.TeamColor.WHITE){
+                    validMoves.add(new ChessMove(myPosition, leftPosition, null));
+                    break;
+                } else if (leftPiece != null && leftPiece.teamColor == ChessGame.TeamColor.BLACK) {
+                    break;
+                }
+                System.out.println("adding possible move: "+ leftPosition.getRow() + "," +leftPosition.getColumn());
+                validMoves.add(new ChessMove(myPosition, leftPosition, null));
+            }
+            //right
+            for (int i = myPosition.getColumn(); i < 9; i++) {
+                ChessPosition rightPosition = new ChessPosition(myPosition.getRow(), i);
+                ChessPiece rightPiece = board.getPiece(rightPosition);
+                if(rightPosition.getColumn() == myPosition.getColumn() && rightPosition.getRow() == myPosition.getRow()){
+                    continue;
+                }
+                if(rightPiece != null && rightPiece.teamColor == ChessGame.TeamColor.WHITE){
+                    validMoves.add(new ChessMove(myPosition, rightPosition, null));
+                    break;
+                } else if (rightPiece != null && rightPiece.teamColor == ChessGame.TeamColor.BLACK) {
+                    break;
+                }
+                validMoves.add(new ChessMove(myPosition, rightPosition, null));
+                System.out.println("adding possible move: "+ rightPosition.getRow() + "," +rightPosition.getColumn());
 
+            }
+            //up (same logic as right)
+            for (int i = myPosition.getRow(); i < 9; i++) {
+                ChessPosition upPosition = new ChessPosition(i, myPosition.getColumn());
+                ChessPiece upPiece = board.getPiece(upPosition);
+                if(upPosition.getColumn() == myPosition.getColumn() && upPosition.getRow() == myPosition.getRow()){
+                    continue;
+                }
+                if(upPiece != null && upPiece.teamColor == ChessGame.TeamColor.WHITE){
+                    validMoves.add(new ChessMove(myPosition, upPosition, null));
+                    break;
+                } else if (upPiece != null && upPiece.teamColor == ChessGame.TeamColor.BLACK ) {
+                    break;
+                }
+                System.out.println("adding possible move: "+ upPosition.getRow() + "," +upPosition.getColumn());
+                validMoves.add(new ChessMove(myPosition, upPosition, null));
+            }
+            //down (same logic as left)
+            for (int i = myPosition.getRow(); i > 0; i--) {
+                ChessPosition downPosition = new ChessPosition(i, myPosition.getColumn());
+                ChessPiece downPiece = board.getPiece(downPosition);
+                if(downPosition.getColumn() == myPosition.getColumn() && downPosition.getRow() == myPosition.getRow()){
+                    continue;
+                }
+                if(downPiece != null && downPiece.teamColor == ChessGame.TeamColor.WHITE){
+                    validMoves.add(new ChessMove(myPosition, downPosition, null));
+                    break;
+                } else if (downPiece != null && downPiece.teamColor == ChessGame.TeamColor.BLACK) {
+                    break;
+                }
+                System.out.println("adding possible move: "+ downPosition.getRow() + "," +downPosition.getColumn());
+
+                validMoves.add(new ChessMove(myPosition, downPosition, null));
+            }
+        }
 
         return validMoves;
     }
