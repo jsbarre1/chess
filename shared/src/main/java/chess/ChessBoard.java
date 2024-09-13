@@ -23,8 +23,6 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        //check if the position is within bounds
-
         boardState[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
@@ -36,6 +34,14 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
+        if(position.getRow()-1 < 0 || position.getRow()-1 > 7){
+            System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn());
+            return null;
+        }
+        if(position.getColumn()-1 < 0 || position.getColumn()-1 > 7){
+            System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn());
+            return null;
+        }
         return boardState[position.getRow()-1][position.getColumn()-1];
     }
 
@@ -59,49 +65,61 @@ public class ChessBoard {
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("R");
+
                 }
                 if (r==1 && c ==2){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("N");
                 }
                 if (r==1 && c ==3){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("B");
                 }
                 if (r==1 && c ==4){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("Q");
                 }
                 if (r==1 && c ==5){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //system.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("K");
+
                 }
                 if (r==1 && c ==6){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("B");
+
                 }
                 if (r==1 && c ==7){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("N");
+
                 }
                 if (r==1 && c ==8){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("R");
                 }
 
 //                |r|n|b|q|k|b|n|r|
@@ -117,65 +135,80 @@ public class ChessBoard {
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("r");
                 }
                 if (r==8 && c ==2){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("n");
                 }
                 if (r==8 && c ==3){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("b");
                 }
                 if (r==8 && c ==4){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("q");
+
                 }
                 if (r==8 && c ==5){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("k");
                 }
                 if (r==8 && c ==6){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("b");
+
                 }
                 if (r==8 && c ==7){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("n");
+
                 }
                 if (r==8 && c ==8){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("r");
+
                 }
                 //pawns
                 if(r == 2){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("P");
                 }
                 if(r == 7){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
+                    System.out.print("p");
                 }
 
             }
+            System.out.print('\n');
         }
     }
 
@@ -184,7 +217,7 @@ public class ChessBoard {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessBoard that = (ChessBoard) o;
-        return SIZE == that.SIZE && Objects.deepEquals(boardState, that.boardState);
+        return Objects.deepEquals(boardState, that.boardState);
     }
 
     @Override
