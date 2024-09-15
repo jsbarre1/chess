@@ -35,11 +35,11 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         if(position.getRow()<1|| position.getRow()>8){
-            System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn());
+            System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn() + "\n");
             return null;
         }
         if(position.getColumn() <1 || position.getColumn()>8){
-            System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn());
+            System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn() + "\n");
             return null;
         }
         return boardState[position.getRow()-1][position.getColumn()-1];

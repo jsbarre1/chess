@@ -324,6 +324,105 @@ public class ChessPiece {
     return knightMoves;
     }
 
+    private  Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor teamColor){
+        Collection<ChessMove> bishopMoves = new ArrayList<>();
+        //calculate diagonal movements
+        //upRight
+        int upRightColumn = myPosition.getColumn();
+        for (int r = myPosition.getRow(); r <= 8; r++) {
+            ChessPosition upRight = new ChessPosition(r, upRightColumn);
+            ChessPiece upRightPiece = board.getPiece(upRight);
+            if(upRight.getColumn() == myPosition.getColumn() && upRight.getRow() == myPosition.getRow()){
+                upRightColumn++;
+                continue;
+            }
+            if(upRightPiece != null && upRightPiece.teamColor != teamColor){
+                System.out.println("UP RIGHT BREAKING found opponent " + r + "," + upRightColumn);
+                bishopMoves.add(new ChessMove(myPosition, upRight, null));
+                break;
+            }else if (upRightPiece != null && upRightPiece.teamColor == teamColor){
+                System.out.println("UP RIGHT BREAKING found self " + r + "," + upRightColumn);
+                break;
+            }
+                if(upRight.getRow() != -111 && upRight.getColumn() != -111){
+                System.out.println("UP RIGHT checking " + r + "," + upRightColumn);
+                bishopMoves.add(new ChessMove(myPosition, upRight, null));
+            }
+
+            upRightColumn++;
+        }
+        //upLeft
+        int upLeftColumn = myPosition.getColumn();
+        for (int r = myPosition.getRow(); r <= 8; r++) {
+            ChessPosition upLeft = new ChessPosition(r, upLeftColumn);
+            ChessPiece upLeftPiece = board.getPiece(upLeft);
+            if(upLeft.getColumn() == myPosition.getColumn() && upLeft.getRow() == myPosition.getRow()){
+                upLeftColumn--;
+                continue;
+            }
+            if(upLeftPiece != null && upLeftPiece.teamColor != teamColor){
+                System.out.println("UP RIGHT BREAKING found opponent " + r + "," + upLeftColumn);
+                bishopMoves.add(new ChessMove(myPosition, upLeft, null));
+                break;
+            }else if (upLeftPiece != null && upLeftPiece.teamColor == teamColor){
+                System.out.println("UP RIGHT BREAKING found self " + r + "," + upLeftColumn);
+                break;
+            }
+            if(upLeft.getRow() != -111 && upLeft.getColumn() != -111) {
+                System.out.println("UP LEFT checking " + r + "," + upLeftColumn);
+                bishopMoves.add(new ChessMove(myPosition, upLeft, null));
+            }
+            upLeftColumn--;
+        }
+        //downRight
+        int downRightColumn = myPosition.getColumn();
+        for (int r = myPosition.getRow(); r >= 1; r--) {
+            ChessPosition downRight = new ChessPosition(r, downRightColumn);
+            ChessPiece downRightPiece = board.getPiece(downRight);
+            if(downRight.getColumn() == myPosition.getColumn() && downRight.getRow() == myPosition.getRow()){
+                downRightColumn++;
+                continue;
+            }
+            if(downRightPiece != null && downRightPiece.teamColor != teamColor){
+                System.out.println("UP RIGHT BREAKING found opponent " + r + "," + downRightColumn);
+                bishopMoves.add(new ChessMove(myPosition, downRight, null));
+                break;
+            }else if (downRightPiece != null && downRightPiece.teamColor == teamColor){
+                System.out.println("UP RIGHT BREAKING found self " + r + "," + downRightColumn);
+                break;
+            }
+            if(downRight.getRow() != -111 && downRight.getColumn() != -111) {
+                System.out.println("DOWN RIGHT checking " + r + "," + downRightColumn);
+                bishopMoves.add(new ChessMove(myPosition, downRight, null));
+            }
+            downRightColumn++;
+        }
+        //downLeft
+        int downLeftColumn = myPosition.getColumn();
+        for (int r = myPosition.getRow(); r >= 1; r--) {
+            ChessPosition downLeft = new ChessPosition(r, downLeftColumn);
+            ChessPiece downLeftPiece = board.getPiece(downLeft);
+            if(downLeft.getColumn() == myPosition.getColumn() && downLeft.getRow() == myPosition.getRow()){
+                downLeftColumn--;
+                continue;
+            }
+            if(downLeftPiece != null && downLeftPiece.teamColor != teamColor){
+                System.out.println("UP RIGHT BREAKING found opponent " + r + "," + downLeftColumn);
+                bishopMoves.add(new ChessMove(myPosition, downLeft, null));
+                break;
+            }else if (downLeftPiece != null && downLeftPiece.teamColor == teamColor){
+                System.out.println("UP RIGHT BREAKING found self " + r + "," + downLeftColumn);
+                break;
+            }
+            if(downLeft.getRow() != -111 && downLeft.getColumn() != -111) {
+                System.out.println("DOWN LEFT checking " + r + "," + downLeftColumn);
+                bishopMoves.add(new ChessMove(myPosition, downLeft, null));
+            }
+            downLeftColumn--;
+        }
+        return bishopMoves;
+    }
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new ArrayList<>();
 
@@ -337,6 +436,9 @@ public class ChessPiece {
         if(pieceType == PieceType.KNIGHT && teamColor == ChessGame.TeamColor.WHITE) {
             validMoves.addAll(knightMoves(board, myPosition, ChessGame.TeamColor.WHITE));
         }
+        if(pieceType == PieceType.BISHOP && teamColor == ChessGame.TeamColor.WHITE){
+            validMoves.addAll(bishopMoves(board, myPosition, ChessGame.TeamColor.WHITE));
+        }
 
         //black
         if(pieceType == PieceType.ROOK && teamColor == ChessGame.TeamColor.BLACK) {
@@ -347,6 +449,9 @@ public class ChessPiece {
         }
         if(pieceType == PieceType.KNIGHT && teamColor == ChessGame.TeamColor.BLACK) {
             validMoves.addAll(knightMoves(board, myPosition, ChessGame.TeamColor.BLACK));
+        }
+        if(pieceType == PieceType.BISHOP && teamColor == ChessGame.TeamColor.BLACK){
+            validMoves.addAll(bishopMoves(board, myPosition, ChessGame.TeamColor.BLACK));
         }
 
 
