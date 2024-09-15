@@ -423,6 +423,66 @@ public class ChessPiece {
         return bishopMoves;
     }
 
+    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor teamColor){
+        Collection<ChessMove> kingMoves = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            ChessPosition currPosition = null;
+            ChessPiece currPiece = null;
+            if(i==1){
+                //check bottom left
+                currPosition = new ChessPosition(myPosition.getRow() -1, myPosition.getColumn()-1);
+                currPiece = board.getPiece(currPosition);
+            }
+            if(i==2){
+                //check bottom
+                currPosition = new ChessPosition(myPosition.getRow() -1, myPosition.getColumn());
+                currPiece = board.getPiece(currPosition);
+            }
+            if(i==3){
+                //check bottom right
+                currPosition = new ChessPosition(myPosition.getRow() -1, myPosition.getColumn()+1);
+                currPiece = board.getPiece(currPosition);
+            }
+            if(i==4){
+                //check left
+                currPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-1);
+                currPiece = board.getPiece(currPosition);
+            }
+            if(i==5){
+                //check right
+                currPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+1);
+                currPiece = board.getPiece(currPosition);
+            }
+            if(i==6){
+                //check top left
+                currPosition = new ChessPosition(myPosition.getRow() +1, myPosition.getColumn()-1);
+                currPiece = board.getPiece(currPosition);
+            }
+            if(i==7){
+                //check top
+                currPosition = new ChessPosition(myPosition.getRow() +1, myPosition.getColumn());
+                currPiece = board.getPiece(currPosition);
+            }
+            if(i==8){
+                //check top right
+                currPosition = new ChessPosition(myPosition.getRow() +1, myPosition.getColumn()+1);
+                currPiece = board.getPiece(currPosition);
+            }
+            if (currPiece != null && currPiece.teamColor != teamColor){
+                kingMoves.add(new ChessMove(myPosition, currPosition, null));
+                continue;
+            } else if (currPiece != null && currPiece.teamColor == teamColor) {
+                continue;
+            }
+            if(currPosition.getColumn() != -111 && currPosition.getRow() != -111){
+                kingMoves.add(new ChessMove(myPosition, currPosition, null));
+            }
+
+
+        }
+            return kingMoves;
+
+    }
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new ArrayList<>();
 
@@ -439,6 +499,17 @@ public class ChessPiece {
         if(pieceType == PieceType.BISHOP && teamColor == ChessGame.TeamColor.WHITE){
             validMoves.addAll(bishopMoves(board, myPosition, ChessGame.TeamColor.WHITE));
         }
+            //queen
+        if(pieceType ==PieceType.QUEEN && teamColor == ChessGame.TeamColor.WHITE){
+            validMoves.addAll(rookMoves(board,myPosition, ChessGame.TeamColor.WHITE));
+        }
+        if(pieceType ==PieceType.QUEEN && teamColor == ChessGame.TeamColor.WHITE){
+            validMoves.addAll(bishopMoves(board,myPosition, ChessGame.TeamColor.WHITE));
+        }
+            //king
+        if(pieceType ==PieceType.KING && teamColor == ChessGame.TeamColor.WHITE){
+            validMoves.addAll(kingMoves(board,myPosition, ChessGame.TeamColor.WHITE));
+        }
 
         //black
         if(pieceType == PieceType.ROOK && teamColor == ChessGame.TeamColor.BLACK) {
@@ -454,8 +525,17 @@ public class ChessPiece {
             validMoves.addAll(bishopMoves(board, myPosition, ChessGame.TeamColor.BLACK));
         }
 
-
-
+            //queen
+        if(pieceType ==PieceType.QUEEN && teamColor == ChessGame.TeamColor.BLACK){
+            validMoves.addAll(rookMoves(board,myPosition, ChessGame.TeamColor.BLACK));
+        }
+        if(pieceType ==PieceType.QUEEN && teamColor == ChessGame.TeamColor.BLACK){
+            validMoves.addAll(bishopMoves(board,myPosition, ChessGame.TeamColor.BLACK));
+        }
+        //king
+        if(pieceType ==PieceType.KING && teamColor == ChessGame.TeamColor.BLACK){
+            validMoves.addAll(kingMoves(board,myPosition, ChessGame.TeamColor.BLACK));
+        }
         return validMoves;
     }
 }
