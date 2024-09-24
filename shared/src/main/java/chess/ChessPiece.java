@@ -129,7 +129,6 @@ public class ChessPiece {
                 pawnMoves.add(new ChessMove(myPosition, forwardMove, PieceType.KNIGHT));
                 return pawnMoves;
             }
-
             //double forward
         }
         //black specific return early

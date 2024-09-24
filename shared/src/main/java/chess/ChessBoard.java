@@ -43,8 +43,8 @@ public class ChessBoard {
             return null;
         }
         return boardState[position.getRow()-1][position.getColumn()-1];
+        //so you pass in the 1-8, 1-8 coordinate, and it returns the piece at 0-7,0-7 board
     }
-
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
