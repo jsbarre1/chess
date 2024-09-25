@@ -482,6 +482,7 @@ public class ChessPiece {
             return kingMoves;
 
     }
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new ArrayList<>();
 
