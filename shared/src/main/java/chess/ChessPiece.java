@@ -197,7 +197,7 @@ public class ChessPiece {
                 } else if (leftPiece != null && leftPiece.teamColor == teamColor) {
                     break;
                 }
-                System.out.println("adding possible move: "+ leftPosition.getRow() + "," +leftPosition.getColumn());
+                //System.out.println("adding possible move: "+ leftPosition.getRow() + "," +leftPosition.getColumn());
                 rookMoves.add(new ChessMove(myPosition, leftPosition, null));
             }
             //right
@@ -214,7 +214,7 @@ public class ChessPiece {
                     break;
                 }
                 rookMoves.add(new ChessMove(myPosition, rightPosition, null));
-                System.out.println("adding possible move: "+ rightPosition.getRow() + "," +rightPosition.getColumn());
+                //System.out.println("adding possible move: "+ rightPosition.getRow() + "," +rightPosition.getColumn());
 
             }
             //up (same logic as right)
@@ -230,7 +230,7 @@ public class ChessPiece {
                 } else if (upPiece != null && upPiece.teamColor == teamColor ) {
                     break;
                 }
-                System.out.println("adding possible move: "+ upPosition.getRow() + "," +upPosition.getColumn());
+                //System.out.println("adding possible move: "+ upPosition.getRow() + "," +upPosition.getColumn());
                 rookMoves.add(new ChessMove(myPosition, upPosition, null));
             }
             //down (same logic as left)
@@ -246,7 +246,7 @@ public class ChessPiece {
                 } else if (downPiece != null && downPiece.teamColor == teamColor ) {
                     break;
                 }
-                System.out.println("adding possible move: "+ downPosition.getRow() + "," +downPosition.getColumn());
+                //System.out.println("adding possible move: "+ downPosition.getRow() + "," +downPosition.getColumn());
 
                 rookMoves.add(new ChessMove(myPosition, downPosition, null));
             }
@@ -336,15 +336,15 @@ public class ChessPiece {
                 continue;
             }
             if(upRightPiece != null && upRightPiece.teamColor != teamColor){
-                System.out.println("UP RIGHT BREAKING found opponent " + r + "," + upRightColumn);
+                //System.out.println("UP RIGHT BREAKING found opponent " + r + "," + upRightColumn);
                 bishopMoves.add(new ChessMove(myPosition, upRight, null));
                 break;
             }else if (upRightPiece != null && upRightPiece.teamColor == teamColor){
-                System.out.println("UP RIGHT BREAKING found self " + r + "," + upRightColumn);
+                //System.out.println("UP RIGHT BREAKING found self " + r + "," + upRightColumn);
                 break;
             }
                 if(upRight.getRow() != -111 && upRight.getColumn() != -111){
-                System.out.println("UP RIGHT checking " + r + "," + upRightColumn);
+                //System.out.println("UP RIGHT checking " + r + "," + upRightColumn);
                 bishopMoves.add(new ChessMove(myPosition, upRight, null));
             }
 
@@ -360,15 +360,15 @@ public class ChessPiece {
                 continue;
             }
             if(upLeftPiece != null && upLeftPiece.teamColor != teamColor){
-                System.out.println("UP RIGHT BREAKING found opponent " + r + "," + upLeftColumn);
+                //System.out.println("UP RIGHT BREAKING found opponent " + r + "," + upLeftColumn);
                 bishopMoves.add(new ChessMove(myPosition, upLeft, null));
                 break;
             }else if (upLeftPiece != null && upLeftPiece.teamColor == teamColor){
-                System.out.println("UP RIGHT BREAKING found self " + r + "," + upLeftColumn);
+                //System.out.println("UP RIGHT BREAKING found self " + r + "," + upLeftColumn);
                 break;
             }
             if(upLeft.getRow() != -111 && upLeft.getColumn() != -111) {
-                System.out.println("UP LEFT checking " + r + "," + upLeftColumn);
+                //System.out.println("UP LEFT checking " + r + "," + upLeftColumn);
                 bishopMoves.add(new ChessMove(myPosition, upLeft, null));
             }
             upLeftColumn--;
@@ -383,15 +383,15 @@ public class ChessPiece {
                 continue;
             }
             if(downRightPiece != null && downRightPiece.teamColor != teamColor){
-                System.out.println("UP RIGHT BREAKING found opponent " + r + "," + downRightColumn);
+                //System.out.println("UP RIGHT BREAKING found opponent " + r + "," + downRightColumn);
                 bishopMoves.add(new ChessMove(myPosition, downRight, null));
                 break;
             }else if (downRightPiece != null && downRightPiece.teamColor == teamColor){
-                System.out.println("UP RIGHT BREAKING found self " + r + "," + downRightColumn);
+                //System.out.println("UP RIGHT BREAKING found self " + r + "," + downRightColumn);
                 break;
             }
             if(downRight.getRow() != -111 && downRight.getColumn() != -111) {
-                System.out.println("DOWN RIGHT checking " + r + "," + downRightColumn);
+               // System.out.println("DOWN RIGHT checking " + r + "," + downRightColumn);
                 bishopMoves.add(new ChessMove(myPosition, downRight, null));
             }
             downRightColumn++;
@@ -406,15 +406,15 @@ public class ChessPiece {
                 continue;
             }
             if(downLeftPiece != null && downLeftPiece.teamColor != teamColor){
-                System.out.println("UP RIGHT BREAKING found opponent " + r + "," + downLeftColumn);
+               // System.out.println("UP RIGHT BREAKING found opponent " + r + "," + downLeftColumn);
                 bishopMoves.add(new ChessMove(myPosition, downLeft, null));
                 break;
             }else if (downLeftPiece != null && downLeftPiece.teamColor == teamColor){
-                System.out.println("UP RIGHT BREAKING found self " + r + "," + downLeftColumn);
+               // System.out.println("UP RIGHT BREAKING found self " + r + "," + downLeftColumn);
                 break;
             }
             if(downLeft.getRow() != -111 && downLeft.getColumn() != -111) {
-                System.out.println("DOWN LEFT checking " + r + "," + downLeftColumn);
+               // System.out.println("DOWN LEFT checking " + r + "," + downLeftColumn);
                 bishopMoves.add(new ChessMove(myPosition, downLeft, null));
             }
             downLeftColumn--;

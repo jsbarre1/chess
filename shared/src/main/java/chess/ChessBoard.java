@@ -16,6 +16,10 @@ public class ChessBoard {
 
     }
 
+    public ChessBoard(ChessPiece[][] board){
+        boardState = board;
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -39,11 +43,11 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         if(position.getRow()<1|| position.getRow()>8){
-            System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn() + "\n");
+            //System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn() + "\n");
             return null;
         }
         if(position.getColumn() <1 || position.getColumn()>8){
-            System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn() + "\n");
+            //System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn() + "\n");
             return null;
         }
         return boardState[position.getRow()-1][position.getColumn()-1];
@@ -214,6 +218,10 @@ public class ChessBoard {
             }
             System.out.print('\n');
         }
+    }
+
+    public ChessPiece[][] getBoard() {
+        return boardState;
     }
 
     @Override
