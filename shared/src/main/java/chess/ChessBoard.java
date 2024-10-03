@@ -45,7 +45,7 @@ public class ChessBoard {
 
     public void castle(ChessMove move){
         //move king over to right spot
-        getPiece(move.getStartPosition()).setHasMoved(true);
+        getPiece(move.getStartPosition());
         boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1];
 
         boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = null;
@@ -59,6 +59,14 @@ public class ChessBoard {
             boardState[move.getEndPosition().getRow()-1][4-1] = boardState[move.getEndPosition().getRow()-1][1-1];
             boardState[move.getEndPosition().getRow()-1][1-1] = null;
         }
+    }
+
+    public void enPassant(ChessMove move, ChessMove opposingMove){
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        boardState[move.getEndPosition().getRow() - 1][move.getEndPosition().getColumn() - 1] = boardState[move.getStartPosition().getRow() - 1][move.getStartPosition().getColumn() - 1];
+        boardState[move.getStartPosition().getRow() - 1][move.getStartPosition().getColumn() - 1] = null;
+        boardState[opposingMove.getEndPosition().getRow() - 1][opposingMove.getEndPosition().getColumn() - 1] = null;
     }
 
     /**

@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Stack;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -13,13 +14,13 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor teamTurnColor;
     private ChessBoard liveBoard;
-    private Collection<ChessMove> completedMoves;
+    private Stack<ChessMove> completedMoves;
 
     public ChessGame() {
         teamTurnColor = TeamColor.WHITE;
         liveBoard = new ChessBoard();
         liveBoard.resetBoard();
-        completedMoves = new ArrayList<>();
+        completedMoves = new Stack<>();
     }
 
     /**
@@ -83,8 +84,53 @@ public class ChessGame {
             }
         }
 
+        if(liveBoard.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN){
+            if(completedMoves.empty()){
+                return finalMoves;
+            }
+            ChessMove lastMove = completedMoves.peek();
+            if(liveBoard.getPiece(lastMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN){
+                if(opposingPawnMovedTwice(completedMoves.peek())){
+                    //left
+                    if(opposingPawnOnLeft(startPosition, lastMove.getEndPosition())){
+                        if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.WHITE){
+                            finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() +1, startPosition.getColumn() -1), null));
+                        }
+                        if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.BLACK){
+                            finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() -1, startPosition.getColumn() -1), null));
+                        }
+                    }
+                    //right
+                    if(opposingPawnOnRight(startPosition, lastMove.getEndPosition())){
+                        if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.WHITE){
+                            finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() +1, startPosition.getColumn() +1), null));
+                        }
+                        if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.BLACK){
+                            finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() -1, startPosition.getColumn() +1), null));
+                        }
+                    }
+                }
+            }
+        }
+
         return finalMoves;
     }
+
+    private Boolean opposingPawnOnLeft (ChessPosition currentPosition, ChessPosition opposingPawnPosition){
+        if(opposingPawnPosition.getRow() == currentPosition.getRow() && opposingPawnPosition.getColumn() == currentPosition.getColumn() -1){
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean opposingPawnOnRight (ChessPosition currentPosition, ChessPosition opposingPawnPosition){
+        if(opposingPawnPosition.getRow() == currentPosition.getRow() && opposingPawnPosition.getColumn() == currentPosition.getColumn() +1){
+            return true;
+        }
+        return false;
+    }
+
+
 
     private Boolean validateMove(ChessMove move, ChessPiece targetPiece) {
 
@@ -317,6 +363,42 @@ public class ChessGame {
 
         return false;
     }
+
+    private boolean isDiagonalPawnMove(ChessMove move){
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+
+        //left up
+        if(endPosition.getRow() - startPosition.getRow() == 1 && endPosition.getColumn() -startPosition.getColumn() == -1){
+            return true;
+        }
+        //right up
+        if(endPosition.getRow() - startPosition.getRow() == 1 && endPosition.getColumn() -startPosition.getColumn() == 1){
+            return true;
+        }//left down
+        if(endPosition.getRow() - startPosition.getRow() == -1 && endPosition.getColumn() -startPosition.getColumn() == -1){
+            return true;
+        }//right down
+        if(endPosition.getRow() - startPosition.getRow() == -1 && endPosition.getColumn() -startPosition.getColumn() == 1){
+            return true;
+        }
+        return false;
+    }
+
+
+
+    private Boolean opposingPawnMovedTwice (ChessMove opposingPawnPosition){
+        if(opposingPawnPosition.getStartPosition().getRow() - opposingPawnPosition.getEndPosition().getRow() == 2){
+            return true;
+        }
+        if(opposingPawnPosition.getEndPosition().getRow() - opposingPawnPosition.getStartPosition().getRow()== 2){
+            return true;
+        }
+
+        return false;
+    }
+
+
     /**
      * Makes a move in a chess game
      *
@@ -345,6 +427,18 @@ public class ChessGame {
                     return;
                 }
             }
+
+            if(targetPiece.getPieceType() == ChessPiece.PieceType.PAWN && !completedMoves.empty()){
+                //check if enPassantMove
+                if(isDiagonalPawnMove(move) && liveBoard.getPiece(move.getEndPosition()) == null){
+                    //make move
+                    liveBoard.enPassant(move, completedMoves.peek());
+                    addCompletedMove(move);
+                    changeTeamColor();
+                    return;
+                }
+            }
+
             if(opponentPiece != null){
                 liveBoard.removePiece(move.getEndPosition());
             }
@@ -471,7 +565,7 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         liveBoard = board;
-        completedMoves = new ArrayList<>();
+        completedMoves = new Stack<>();
     }
 
     /**
