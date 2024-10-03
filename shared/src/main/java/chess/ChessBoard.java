@@ -34,6 +34,33 @@ public class ChessBoard {
         boardState[position.getRow()-1][position.getColumn()-1] = null;
     }
 
+    public void movePiece(ChessMove move){
+        if(move.getPromotionPiece() != null){
+            boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = new ChessPiece(getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
+        }else{
+            boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1];
+        }
+        boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = null;
+    }
+
+    public void castle(ChessMove move){
+        //move king over to right spot
+        getPiece(move.getStartPosition()).setHasMoved(true);
+        boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1];
+
+        boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = null;
+        //move rook depending on left or right
+
+        if(move.getEndPosition().getColumn() == 7){
+            boardState[move.getEndPosition().getRow()-1][6-1] = boardState[move.getEndPosition().getRow()-1][8-1];
+            boardState[move.getEndPosition().getRow()-1][8-1] = null;
+        }
+        if(move.getEndPosition().getColumn() == 3){
+            boardState[move.getEndPosition().getRow()-1][4-1] = boardState[move.getEndPosition().getRow()-1][1-1];
+            boardState[move.getEndPosition().getRow()-1][1-1] = null;
+        }
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *
@@ -229,7 +256,7 @@ public class ChessBoard {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessBoard that = (ChessBoard) o;
-        return Objects.deepEquals(boardState, that.boardState);
+        return SIZE == that.SIZE && Objects.deepEquals(boardState, that.boardState);
     }
 
     @Override

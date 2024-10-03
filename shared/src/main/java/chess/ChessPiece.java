@@ -13,9 +13,26 @@ import java.util.Objects;
 public class ChessPiece {
     private ChessGame.TeamColor teamColor;
     private PieceType pieceType;
+    private Boolean hasMoved;
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return teamColor == that.teamColor && pieceType == that.pieceType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamColor, pieceType);
+    }
+
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         teamColor = pieceColor;
         pieceType = type;
+        hasMoved = false;
     }
 
     /**
@@ -43,17 +60,10 @@ public class ChessPiece {
         return pieceType;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessPiece that = (ChessPiece) o;
-        return teamColor == that.teamColor && pieceType == that.pieceType;
-    }
+    public Boolean getHasMoved(){return hasMoved;}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(teamColor, pieceType);
+    public void setHasMoved(Boolean value){
+        hasMoved = value;
     }
 
     private boolean validPosition(ChessPosition position){

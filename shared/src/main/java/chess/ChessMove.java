@@ -12,6 +12,7 @@ public class ChessMove {
     private ChessPosition startPosition;
     private ChessPosition endPosition;
     private ChessPiece.PieceType promotionPiece;
+
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
         this.startPosition = startPosition;
@@ -19,12 +20,29 @@ public class ChessMove {
         this.promotionPiece = promotionPiece;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessMove chessMove = (ChessMove) o;
+        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startPosition, endPosition, promotionPiece);
+    }
+
+
+
+
     /**
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
         return startPosition;
     }
+
 
     /**
      * @return ChessPosition of ending location
@@ -43,18 +61,4 @@ public class ChessMove {
         return promotionPiece;
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(startPosition, endPosition, promotionPiece);
-    }
 }
