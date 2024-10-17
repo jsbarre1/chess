@@ -8,4 +8,8 @@ public class AuthService {
     public AuthService(MemoryAuthDAO memoryAuthDAO){
         this.memoryAuthDAO = memoryAuthDAO;
     }
+
+    public void deleteAllAuth(){
+        memoryAuthDAO.deleteAllAuths();
+    }
 }

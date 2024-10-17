@@ -8,4 +8,9 @@ public class GameService {
     public GameService(MemoryGameDAO memoryGameDAO){
         this.memoryGameDAO = memoryGameDAO;
     }
+
+
+    public void deleteAllGames(){
+        memoryGameDAO.deleteAllGames();
+    }
 }
