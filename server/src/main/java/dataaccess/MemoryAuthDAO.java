@@ -5,7 +5,7 @@ import model.AuthData;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class MDAAuth implements AuthDAO{
+public class MemoryAuthDAO implements AuthDAO{
     final private Collection<AuthData> authDataList = new ArrayList<>();
 
     public void deleteAllAuths() {
