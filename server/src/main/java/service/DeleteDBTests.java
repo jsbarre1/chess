@@ -1,14 +1,10 @@
 package service;
 
-import chess.ChessPosition;
-import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 public class DeleteDBTests {
@@ -17,7 +13,7 @@ public class DeleteDBTests {
     private MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
     private AuthService authService = new AuthService(memoryAuthDAO);
     private GameService gameService = new GameService(memoryGameDAO);
-    private UserService userService = new UserService(memoryUserDAO);
+    private RegisterService registerService = new RegisterService(memoryUserDAO, memoryAuthDAO);
 
     @BeforeEach
     public void setUp(){
