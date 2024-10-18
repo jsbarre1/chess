@@ -5,6 +5,7 @@ import model.UserData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO{
     final private Map<String, AuthData> authList;
@@ -17,9 +18,9 @@ public class MemoryAuthDAO implements AuthDAO{
         authList.clear();
     }
 
-    public AuthData addAuth(String authToken, String username){
-        AuthData authData = new AuthData(username, authToken);
-        authList.put(authToken, authData);
+    public AuthData addAuth(String username){
+        AuthData authData = new AuthData(username, UUID.randomUUID().toString());
+        authList.put(authData.authToken(), authData);
         return authData;
     }
 

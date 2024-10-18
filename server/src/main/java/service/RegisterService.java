@@ -28,7 +28,7 @@ public class RegisterService {
         }
         if(memoryUserDAO.getUser(addUserRequest.username())==null){
             UserData userData = memoryUserDAO.addUser(addUserRequest.username(), addUserRequest.password(), addUserRequest.email());
-            AuthData authData = memoryAuthDAO.addAuth(UUID.randomUUID().toString() ,addUserRequest.username());
+            AuthData authData = memoryAuthDAO.addAuth(addUserRequest.username());
             return authData;
         }else {
             throw new ResponseException(403, "Error: already taken");

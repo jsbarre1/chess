@@ -7,6 +7,7 @@ import dataaccess.MemoryUserDAO;
 import exceptions.ResponseException;
 import model.UserData;
 import service.ClearService;
+import service.LoginService;
 import service.LogoutService;
 import service.RegisterService;
 import spark.*;
@@ -21,11 +22,13 @@ public class Server {
     private ClearService clearService;
     private RegisterService registerService;
     private LogoutService logoutService;
+    private LoginService loginService;
 ;
     public Server() {
         this.clearService = new ClearService(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
         this.registerService = new RegisterService(memoryUserDAO, memoryAuthDAO);
         this.logoutService = new LogoutService(memoryAuthDAO);
+        this.loginService = new LoginService(memoryAuthDAO, memoryUserDAO);
     }
 
     public int run(int desiredPort) {
@@ -36,7 +39,8 @@ public class Server {
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::deleteDB);
         Spark.post("/user", this::registerUser);
-        Spark.delete("/session", this::deleteSession);
+        Spark.delete("/session", this::logout);
+        Spark.post("/session", this::login);
         Spark.exception(ResponseException.class, this::exceptionHandler);
 
         Spark.awaitInitialization();
@@ -61,15 +65,21 @@ public class Server {
         return new Gson().toJson(response);
     }
 
-    private Object deleteSession(Request req, Response res) throws ResponseException{
+    private Object logout(Request req, Response res) throws ResponseException{
         var authToken = new Gson().fromJson(req.headers("Authorization"), String.class);
         Object logoutResponse = logoutService.logout(authToken);
         return new Gson().toJson(logoutResponse);
     }
 
+    private Object login(Request req, Response res) throws ResponseException{
+        var usernameAndPassword = new Gson().fromJson(req.body(), UserData.class);
+        Object loginResponse = loginService.login(usernameAndPassword);
+        return new Gson().toJson(loginResponse);
+    }
+
     private Object registerUser(Request req, Response res) throws ResponseException{
         var user = new Gson().fromJson(req.body(), UserData.class);
-        Object response = registerService.addUser(user);
-        return new Gson().toJson(response);
+        Object registerResponse = registerService.addUser(user);
+        return new Gson().toJson(registerResponse);
     }
 }
