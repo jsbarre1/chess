@@ -8,6 +8,7 @@ import dataaccess.MemoryUserDAO;
 import exceptions.ResponseException;
 import model.UserData;
 import service.AuthService;
+import service.ClearService;
 import service.GameService;
 import service.RegisterService;
 import spark.*;
@@ -20,12 +21,12 @@ public class Server {
     private MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
     private MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
     private AuthService authService;
-    private GameService gameService;
+    private ClearService clearService;
     private RegisterService registerService;
 
     public Server() {
         this.authService = new AuthService(memoryAuthDAO);
-        this.gameService = new GameService(memoryGameDAO);
+        this.clearService = new ClearService(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
         this.registerService = new RegisterService(memoryUserDAO, memoryAuthDAO);
     }
 
@@ -51,12 +52,11 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private Object deleteDB(Request req, Response res) throws DataAccessException {
-        authService.deleteAllAuth();
-        registerService.deleteAllUsers();
-        gameService.deleteAllGames();
-        res.status(204);
-        return "";
+    private Object deleteDB(Request req, Response res) {
+        clearService.deleteDB();
+        res.status(200);
+        Map<String, Object> response = new HashMap<>();
+        return new Gson().toJson(response);
     }
 
     private Object registerUser(Request req, Response res) {
