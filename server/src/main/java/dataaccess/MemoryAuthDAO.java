@@ -27,4 +27,8 @@ public class MemoryAuthDAO implements AuthDAO{
         return authList.get(authToken);
     }
 
+    public void deleteAuth(String authToken){
+        authList.remove(authToken);
+    }
+
 }
