@@ -7,5 +7,6 @@ import java.util.Map;
 
 public interface GameDAO {
     void deleteAllGames() throws DataAccessException;
-    Map<String, GameData> getGames() throws DataAccessException;
+    Map<Integer, GameData> getGames() throws DataAccessException;
+    Integer addGame(GameData gameData) throws DataAccessException;
 }

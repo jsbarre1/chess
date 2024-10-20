@@ -6,10 +6,7 @@ import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import exceptions.ResponseException;
 import model.UserData;
-import service.ClearService;
-import service.LoginService;
-import service.LogoutService;
-import service.RegisterService;
+import service.*;
 import spark.*;
 
 import java.util.HashMap;
@@ -19,16 +16,19 @@ public class Server {
     private MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
     private MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
     private MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+
     private ClearService clearService;
     private RegisterService registerService;
     private LogoutService logoutService;
     private LoginService loginService;
+    private ListGamesService listGamesService;
 ;
     public Server() {
         this.clearService = new ClearService(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
         this.registerService = new RegisterService(memoryUserDAO, memoryAuthDAO);
         this.logoutService = new LogoutService(memoryAuthDAO);
         this.loginService = new LoginService(memoryAuthDAO, memoryUserDAO);
+        this.listGamesService = new ListGamesService(memoryGameDAO, memoryAuthDAO);
     }
 
     public int run(int desiredPort) {
@@ -41,6 +41,7 @@ public class Server {
         Spark.post("/user", this::registerUser);
         Spark.delete("/session", this::logout);
         Spark.post("/session", this::login);
+        Spark.get("/game", this::listGames);
         Spark.exception(ResponseException.class, this::exceptionHandler);
 
         Spark.awaitInitialization();
@@ -81,5 +82,11 @@ public class Server {
         var user = new Gson().fromJson(req.body(), UserData.class);
         Object registerResponse = registerService.addUser(user);
         return new Gson().toJson(registerResponse);
+    }
+
+    private Object listGames(Request req, Response res) throws ResponseException{
+        var authToken = new Gson().fromJson(req.headers("Authorization"), String.class);
+        Object listGamesResponse = listGamesService.listGames(authToken);
+        return new Gson().toJson(listGamesResponse);
     }
 }

@@ -4,27 +4,24 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import exceptions.ResponseException;
 import functions.AuthFunctions;
-import model.GameData;
+import functions.GameFunctions;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
-public class ListGamesService {
-    MemoryGameDAO memoryGameDAO;
+public class CreateGameService {
     AuthFunctions authFunctions;
+    GameFunctions gameFunctions;
 
-    public ListGamesService(MemoryGameDAO memoryGameDAO, MemoryAuthDAO memoryAuthDAO){
-        this.memoryGameDAO = memoryGameDAO;
+    public CreateGameService(MemoryAuthDAO memoryAuthDAO, MemoryGameDAO memoryGameDAO){
         this.authFunctions = new AuthFunctions(memoryAuthDAO);
+        this.gameFunctions = new GameFunctions(memoryGameDAO);
     }
 
-    public Map<Integer, GameData> listGames(String authToken) throws ResponseException{
+    public Integer createGame(String authToken) throws ResponseException{
         if(!authFunctions.isAuthenticated(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
         }else{
-            return memoryGameDAO.getGames();
+            return 1;
         }
     }
 }
