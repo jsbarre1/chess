@@ -1,14 +1,22 @@
 package dataaccess;
 
-import model.AuthData;
+import model.GameData;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO{
-    final private Collection<AuthData> gameList = new ArrayList<>();
+    final private Map<String, GameData> gameList;
+
+    public MemoryGameDAO() {
+        this.gameList = new HashMap<>();
+    }
 
     public void deleteAllGames(){
         gameList.clear();
+    }
+
+    public Map<String, GameData> getGames(){
+        return gameList;
     }
 }

@@ -16,10 +16,8 @@ public class MemoryUserDAO implements UserDAO{
         userList.clear();
     }
 
-    public UserData addUser(String username, String password, String email){
-        UserData userData = new UserData(username,password,email);
-        userList.put(username, userData);
-        return userData;
+    public void addUser(UserData userData){
+        userList.put(userData.username(), userData);
     }
 
     public UserData getUser(String username){

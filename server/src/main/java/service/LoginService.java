@@ -3,22 +3,22 @@ package service;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import exceptions.ResponseException;
-import model.AuthData;
+import functions.AuthFunctions;
+import functions.UserFunctions;
 import model.UserData;
 
-import java.util.HashMap;
 import java.util.Objects;
 
 public class LoginService {
-    private MemoryAuthDAO memoryAuthDAO;
-    private MemoryUserDAO memoryUserDAO;
+    private AuthFunctions authFunctions;
+    private UserFunctions userFunctions;
     public LoginService(MemoryAuthDAO memoryAuthDAO, MemoryUserDAO memoryUserDAO){
-        this.memoryAuthDAO = memoryAuthDAO;
-        this.memoryUserDAO = memoryUserDAO;
+        this.authFunctions = new AuthFunctions(memoryAuthDAO);
+        this.userFunctions = new UserFunctions(memoryUserDAO);
     }
 
     public Object login(UserData usernameAndPassword) throws ResponseException {
-        UserData userData = memoryUserDAO.getUser(usernameAndPassword.username());
+        UserData userData = userFunctions.getUser(usernameAndPassword.username());
 
         if(userData == null){
             throw new ResponseException(401, "Error: unauthorized");
@@ -28,7 +28,7 @@ public class LoginService {
             throw new ResponseException(401, "Error: unauthorized");
         }
 
-        return memoryAuthDAO.addAuth(usernameAndPassword.username());
+        return authFunctions.addAuth(usernameAndPassword.username());
     }
 
 
