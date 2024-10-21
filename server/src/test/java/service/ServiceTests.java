@@ -16,6 +16,7 @@ import spark.Response;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class ServiceTests {
@@ -27,6 +28,8 @@ public class ServiceTests {
     private LoginService loginService = new LoginService(memoryAuthDAO, memoryUserDAO);
     private CreateGameService createGameService = new CreateGameService(memoryAuthDAO,memoryGameDAO);
     private LogoutService logoutService = new LogoutService(memoryAuthDAO);
+    private ListGamesService listGamesService = new ListGamesService(memoryGameDAO, memoryAuthDAO);
+
     private static UserData testUser;
     private AuthData authData;
     private final ResponseException unauthorized = new ResponseException(401, "Error: unauthorized");
@@ -37,6 +40,8 @@ public class ServiceTests {
     //clearService
     //loginService
     //registerService
+    //createGameService
+    //listGamesService
 
     @BeforeAll
     public static void init(){
@@ -122,8 +127,47 @@ public class ServiceTests {
     @DisplayName("Create Game Success")
     public void createGame() throws ResponseException, DataAccessException {
         GameData gameID = createGameService.createGame(authData.authToken(), "newGame");
-        new GameData(gameID.gameID(), null, null, "newGame", new ChessGame());
-        Assertions.assertEquals(memoryGameDAO.getGame);
+        GameData correctGame = new GameData(gameID.gameID(), null, null, "newGame", new ChessGame());
+        Assertions.assertEquals(memoryGameDAO.getGame(gameID.gameID()), correctGame);
+    }
+
+    @Test
+    @DisplayName("Create Game Fail (unauthorized)")
+    public void createGameFail() throws DataAccessException {
+       try {
+           GameData gameID = createGameService.createGame("123", "newGame");
+       } catch (ResponseException e) {
+           Assertions.assertEquals(e.toString(), unauthorized.toString());
+       }
+    }
+
+    @Test
+    @DisplayName("List Games Success")
+    public void listGames() throws DataAccessException, ResponseException {
+        GameData gameId1 = createGameService.createGame(authData.authToken(), "hello");
+        GameData gameId2 = createGameService.createGame(authData.authToken(), "goodbye");
+
+        Map<Integer, GameData> games = listGamesService.listGames(authData.authToken());
+
+        Map<Integer, GameData> correctGames = new HashMap<>();
+        correctGames.put(gameId1.gameID(), new GameData(gameId1.gameID(), null, null, "hello", new ChessGame()));
+        correctGames.put(gameId2.gameID(), new GameData(gameId2.gameID(), null, null, "goodbye", new ChessGame()));
+
+        Assertions.assertEquals(games, correctGames);
+    }
+
+    @Test
+    @DisplayName("List Games Failure (not authenticated)")
+    public void listGamesFailure() throws DataAccessException, ResponseException {
+        GameData gameId1 = createGameService.createGame(authData.authToken(), "hello");
+        GameData gameId2 = createGameService.createGame(authData.authToken(), "goodbye");
+
+        try {
+            Map<Integer, GameData> games = listGamesService.listGames("123");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(e.toString(), unauthorized.toString());
+        }
+
     }
 
 

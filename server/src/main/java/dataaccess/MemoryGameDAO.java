@@ -36,4 +36,14 @@ public class MemoryGameDAO implements GameDAO{
         }
         return new GameData(gameData.gameID(), null, null, null, null);
     }
+
+    public GameData getGame(Integer id) throws DataAccessException{
+        GameData targetGame = gameList.get(id);
+
+        if(targetGame == null){
+            throw new DataAccessException("Game Not Found");
+        }
+
+        else return targetGame;
+    }
 }
