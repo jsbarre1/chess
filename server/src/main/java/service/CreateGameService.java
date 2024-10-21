@@ -1,10 +1,12 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import exceptions.ResponseException;
 import functions.AuthFunctions;
 import functions.GameFunctions;
+import model.GameData;
 
 public class CreateGameService {
     AuthFunctions authFunctions;
@@ -15,7 +17,7 @@ public class CreateGameService {
         this.gameFunctions = new GameFunctions(memoryGameDAO);
     }
 
-    public Object createGame(String authToken, String gameName) throws ResponseException{
+    public GameData createGame(String authToken, String gameName) throws ResponseException, DataAccessException {
         if(authFunctions.isNotAuthenticated(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
         }else{

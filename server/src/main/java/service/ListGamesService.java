@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import exceptions.ResponseException;
@@ -17,7 +18,7 @@ public class ListGamesService {
         this.authFunctions = new AuthFunctions(memoryAuthDAO);
     }
 
-    public Map<Integer, GameData> listGames(String authToken) throws ResponseException{
+    public Map<Integer, GameData> listGames(String authToken) throws ResponseException, DataAccessException {
         if(authFunctions.isNotAuthenticated(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
         }else{

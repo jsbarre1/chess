@@ -28,7 +28,7 @@ public class MemoryGameDAO implements GameDAO{
         }
     }
 
-    public Object addGame(GameData gameData) throws DataAccessException {
+    public GameData addGame(GameData gameData) throws DataAccessException {
         try {
             gameList.put(gameData.gameID(), gameData);
         } catch (Exception e) {

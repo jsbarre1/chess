@@ -48,6 +48,8 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.exception(ResponseException.class, this::exceptionHandler);
+        Spark.exception(DataAccessException.class, this::exceptionHandlerDataAccess);
+
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -60,6 +62,12 @@ public class Server {
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
         res.status(ex.StatusCode());
+        res.body(new Gson().toJson(Map.of("message", ex.getMessage())));
+        res.type("application/json");
+    }
+
+    private void exceptionHandlerDataAccess(DataAccessException ex, Request req, Response res) {
+        res.status(500);
         res.body(new Gson().toJson(Map.of("message", ex.getMessage())));
         res.type("application/json");
     }

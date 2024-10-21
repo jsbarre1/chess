@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import exceptions.ResponseException;
@@ -18,7 +19,7 @@ public class RegisterService {
         this.authFunctions = new AuthFunctions(memoryAuthDAO);
     }
 
-    public AuthData addUser(UserData addUserRequest)throws ResponseException {
+    public AuthData addUser(UserData addUserRequest)throws ResponseException, DataAccessException {
         if(addUserRequest.username() == null || addUserRequest.password() == null || addUserRequest.email() == null){
             throw new ResponseException(400, "Error: bad request");
         }

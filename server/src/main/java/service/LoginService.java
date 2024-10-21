@@ -1,10 +1,12 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import exceptions.ResponseException;
 import functions.AuthFunctions;
 import functions.UserFunctions;
+import model.AuthData;
 import model.UserData;
 
 import java.util.Objects;
@@ -17,7 +19,7 @@ public class LoginService {
         this.userFunctions = new UserFunctions(memoryUserDAO);
     }
 
-    public Object login(UserData usernameAndPassword) throws ResponseException {
+    public AuthData login(UserData usernameAndPassword) throws ResponseException, DataAccessException {
         UserData userData = userFunctions.getUser(usernameAndPassword.username());
 
         if(userData == null){

@@ -1,6 +1,7 @@
 package functions;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryGameDAO;
 import model.GameData;
 
@@ -14,7 +15,7 @@ public class GameFunctions {
 
     }
 
-    public Object createGame(String gameName){
+    public GameData createGame(String gameName) throws DataAccessException {
         Random random = new Random();
         GameData gameData = new GameData(random.nextInt(1,9999), null, null, gameName, new ChessGame());
         return memoryGameDAO.addGame(gameData);

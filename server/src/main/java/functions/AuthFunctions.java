@@ -1,5 +1,6 @@
 package functions;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import model.AuthData;
 
@@ -9,15 +10,15 @@ public class AuthFunctions {
         this.memoryAuthDAO = memoryAuthDAO;
     }
 
-    public boolean isNotAuthenticated(String authToken){
+    public boolean isNotAuthenticated(String authToken) throws DataAccessException {
         return memoryAuthDAO.getAuth(authToken) == null;
     }
 
-    public void deleteAuth(String authToken){
+    public void deleteAuth(String authToken)throws DataAccessException{
         memoryAuthDAO.deleteAuth(authToken);
     }
 
-    public AuthData addAuth(String username){
+    public AuthData addAuth(String username)throws DataAccessException{
         return memoryAuthDAO.addAuth(username);
     }
 
