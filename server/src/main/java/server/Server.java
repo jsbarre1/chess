@@ -8,6 +8,7 @@ import dataaccess.MemoryUserDAO;
 import exceptions.ResponseException;
 import model.GameData;
 import model.UserData;
+import models.JoinGameObject;
 import service.*;
 import spark.*;
 
@@ -25,6 +26,7 @@ public class Server {
     private LoginService loginService;
     private ListGamesService listGamesService;
     private CreateGameService createGameService;
+    private JoinGameService joinGameService;
 ;
     public Server() {
         this.clearService = new ClearService(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
@@ -33,6 +35,7 @@ public class Server {
         this.loginService = new LoginService(memoryAuthDAO, memoryUserDAO);
         this.listGamesService = new ListGamesService(memoryGameDAO, memoryAuthDAO);
         this.createGameService = new CreateGameService(memoryAuthDAO, memoryGameDAO);
+        this.joinGameService = new JoinGameService(memoryGameDAO, memoryAuthDAO);
     }
 
     public int run(int desiredPort) {
@@ -47,6 +50,7 @@ public class Server {
         Spark.post("/session", this::login);
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
         Spark.exception(ResponseException.class, this::exceptionHandler);
         Spark.exception(DataAccessException.class, this::exceptionHandlerDataAccess);
 
@@ -103,10 +107,20 @@ public class Server {
         return new Gson().toJson(listGamesResponse);
     }
 
+    private Object joinGame(Request req, Response res) throws ResponseException, DataAccessException{
+        var authToken = new Gson().fromJson(req.headers("Authorization"), String.class);
+        var colorAndID = new Gson().fromJson(req.body(), JoinGameObject.class);
+
+        Object joinGameResponse = joinGameService.joinGame(authToken, colorAndID);
+        return new Gson().toJson(joinGameResponse);
+    }
+
     private Object createGame(Request req, Response res) throws ResponseException, DataAccessException{
         var gameNameObject = new Gson().fromJson(req.body(), GameData.class);
         String gameName = gameNameObject.gameName();
         var authToken = new Gson().fromJson(req.headers("Authorization"), String.class);
         Object createGameResponse = createGameService.createGame(authToken,gameName);
         return new Gson().toJson(createGameResponse);
-    }}
+    }
+
+}
