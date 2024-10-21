@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import exceptions.ResponseException;
 import functions.AuthFunctions;
@@ -12,8 +13,8 @@ public class LogoutService {
         this.authFunctions = new AuthFunctions(memoryAuthDAO);
     }
 
-    public Object logout(String authToken) throws ResponseException {
-        if(!authFunctions.isAuthenticated(authToken)){
+    public Object logout(String authToken) throws ResponseException, DataAccessException {
+        if(authFunctions.isNotAuthenticated(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
         }else{
             authFunctions.deleteAuth(authToken);

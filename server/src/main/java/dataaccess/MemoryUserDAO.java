@@ -12,15 +12,30 @@ public class MemoryUserDAO implements UserDAO{
         this.userList = new HashMap<>();
     }
 
-    public void deleteAllUsers() {
-        userList.clear();
+    public void deleteAllUsers() throws DataAccessException{
+        try{
+            userList.clear();
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
-    public void addUser(UserData userData){
-        userList.put(userData.username(), userData);
+    public void addUser(UserData userData) throws DataAccessException{
+        try{
+            userList.put(userData.username(), userData);
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
     }
 
-    public UserData getUser(String username){
-        return userList.get(username);
+    public UserData getUser(String username) throws DataAccessException{
+
+        try{
+            return userList.get(username);
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
     }
 }

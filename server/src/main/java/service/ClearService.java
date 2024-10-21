@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
@@ -16,7 +17,7 @@ public class ClearService {
         this.memoryGameDAO = memoryGameDAO;
     }
 
-    public void deleteDB(){
+    public void deleteDB() throws DataAccessException {
         memoryUserDAO.deleteAllUsers();
         memoryGameDAO.deleteAllGames();
         memoryAuthDAO.deleteAllAuths();

@@ -14,7 +14,7 @@ public class GameFunctions {
 
     }
 
-    public Integer createGame(String gameName){
+    public Object createGame(String gameName){
         Random random = new Random();
         GameData gameData = new GameData(random.nextInt(1,9999), null, null, gameName, new ChessGame());
         return memoryGameDAO.addGame(gameData);

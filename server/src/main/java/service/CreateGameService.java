@@ -6,8 +6,6 @@ import exceptions.ResponseException;
 import functions.AuthFunctions;
 import functions.GameFunctions;
 
-import java.util.HashMap;
-
 public class CreateGameService {
     AuthFunctions authFunctions;
     GameFunctions gameFunctions;
@@ -17,11 +15,11 @@ public class CreateGameService {
         this.gameFunctions = new GameFunctions(memoryGameDAO);
     }
 
-    public Integer createGame(String authToken) throws ResponseException{
-        if(!authFunctions.isAuthenticated(authToken)){
+    public Object createGame(String authToken, String gameName) throws ResponseException{
+        if(authFunctions.isNotAuthenticated(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
         }else{
-            return 1;
+           return gameFunctions.createGame(gameName);
         }
     }
 }

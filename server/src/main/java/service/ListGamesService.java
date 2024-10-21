@@ -6,9 +6,6 @@ import exceptions.ResponseException;
 import functions.AuthFunctions;
 import model.GameData;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ListGamesService {
@@ -21,7 +18,7 @@ public class ListGamesService {
     }
 
     public Map<Integer, GameData> listGames(String authToken) throws ResponseException{
-        if(!authFunctions.isAuthenticated(authToken)){
+        if(authFunctions.isNotAuthenticated(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
         }else{
             return memoryGameDAO.getGames();

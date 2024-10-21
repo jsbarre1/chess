@@ -5,6 +5,7 @@ import dataaccess.MemoryUserDAO;
 import exceptions.ResponseException;
 import functions.AuthFunctions;
 import functions.UserFunctions;
+import model.AuthData;
 import model.UserData;
 
 public class RegisterService {
@@ -17,7 +18,7 @@ public class RegisterService {
         this.authFunctions = new AuthFunctions(memoryAuthDAO);
     }
 
-    public Object addUser(UserData addUserRequest)throws ResponseException {
+    public AuthData addUser(UserData addUserRequest)throws ResponseException {
         if(addUserRequest.username() == null || addUserRequest.password() == null || addUserRequest.email() == null){
             throw new ResponseException(400, "Error: bad request");
         }
