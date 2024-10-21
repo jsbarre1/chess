@@ -4,6 +4,7 @@ import model.GameData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MemoryGameDAO implements GameDAO{
     final private Map<Integer, GameData> gameList;
@@ -46,4 +47,19 @@ public class MemoryGameDAO implements GameDAO{
 
         else return targetGame;
     }
+
+    public Map<Integer, GameData> addPlayerToGame(GameData oldGame, String playerColor, String username)throws DataAccessException {
+        if(Objects.equals(playerColor, "WHITE")){
+            GameData newGame = new GameData(oldGame.gameID(), username, oldGame.blackUsername(), oldGame.gameName(), oldGame.game());
+            gameList.remove(oldGame.gameID());
+            gameList.put(newGame.gameID(), newGame);
+            return new HashMap<>();
+        }else{
+            GameData newGame = new GameData(oldGame.gameID(),oldGame.whiteUserName(), username, oldGame.gameName(), oldGame.game());
+            gameList.remove(oldGame.gameID());
+            gameList.put(newGame.gameID(), newGame);
+            return new HashMap<>();
+        }
+    };
+
 }

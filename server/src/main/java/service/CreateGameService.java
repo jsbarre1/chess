@@ -18,10 +18,7 @@ public class CreateGameService {
     }
 
     public GameData createGame(String authToken, String gameName) throws ResponseException, DataAccessException {
-        if(authFunctions.isNotAuthenticated(authToken)){
-            throw new ResponseException(401, "Error: unauthorized");
-        }else{
-           return gameFunctions.createGame(gameName);
-        }
+        authFunctions.checkAuth(authToken);
+        return gameFunctions.createGame(gameName);
     }
 }

@@ -14,12 +14,9 @@ public class LogoutService {
     }
 
     public Object logout(String authToken) throws ResponseException, DataAccessException {
-        if(authFunctions.isNotAuthenticated(authToken)){
-            throw new ResponseException(401, "Error: unauthorized");
-        }else{
-            authFunctions.deleteAuth(authToken);
-            return new HashMap<>();
-        }
+        authFunctions.checkAuth(authToken);
+        authFunctions.deleteAuth(authToken);
+        return new HashMap<>();
     }
 
 

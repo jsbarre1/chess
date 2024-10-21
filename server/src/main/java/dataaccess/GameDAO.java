@@ -2,7 +2,6 @@ package dataaccess;
 
 import model.GameData;
 
-import java.util.Collection;
 import java.util.Map;
 
 public interface GameDAO {
@@ -10,4 +9,5 @@ public interface GameDAO {
     Map<Integer, GameData> getGames() throws DataAccessException;
     GameData addGame(GameData gameData) throws DataAccessException;
     GameData getGame(Integer id) throws DataAccessException;
+    public Map<Integer, GameData> addPlayerToGame(GameData oldGame, String playerColor, String username)throws DataAccessException;
 }
