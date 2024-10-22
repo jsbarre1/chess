@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.GameData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +25,19 @@ public class MemoryGameDAO implements GameDAO{
     public Map<Integer, GameData> getGames()throws DataAccessException{
         try{
             return gameList;
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public ArrayList<GameData> getGamesArray()throws DataAccessException{
+        ArrayList<GameData> games = new ArrayList<>();
+        try{
+            for (Map.Entry<Integer, GameData> game : gameList.entrySet()) {
+                GameData value = game.getValue();
+                games.add(value);
+            }
+            return games;
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
         }
@@ -55,7 +69,7 @@ public class MemoryGameDAO implements GameDAO{
             gameList.put(newGame.gameID(), newGame);
             return new HashMap<>();
         }else{
-            GameData newGame = new GameData(oldGame.gameID(),oldGame.whiteUserName(), username, oldGame.gameName(), oldGame.game());
+            GameData newGame = new GameData(oldGame.gameID(),oldGame.whiteUsername(), username, oldGame.gameName(), oldGame.game());
             gameList.remove(oldGame.gameID());
             gameList.put(newGame.gameID(), newGame);
             return new HashMap<>();

@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
@@ -9,16 +10,18 @@ import exceptions.ResponseException;
 import model.GameData;
 import model.UserData;
 import models.JoinGameObject;
+import models.ListGamesResult;
 import service.*;
 import spark.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
-    private MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
-    private MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    private MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+    private final MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    private final MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+    private final MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
 
     private ClearService clearService;
     private RegisterService registerService;
@@ -84,7 +87,7 @@ public class Server {
     }
 
     private Object logout(Request req, Response res) throws ResponseException, DataAccessException{
-        var authToken = new Gson().fromJson(req.headers("Authorization"), String.class);
+        String authToken = parseAuthData(req);
         Object logoutResponse = logoutService.logout(authToken);
         return new Gson().toJson(logoutResponse);
     }
@@ -96,19 +99,21 @@ public class Server {
     }
 
     private Object registerUser(Request req, Response res) throws ResponseException, DataAccessException{
+
         var user = new Gson().fromJson(req.body(), UserData.class);
         Object registerResponse = registerService.addUser(user);
         return new Gson().toJson(registerResponse);
     }
 
     private Object listGames(Request req, Response res) throws ResponseException, DataAccessException{
-        var authToken = new Gson().fromJson(req.headers("Authorization"), String.class);
-        Object listGamesResponse = listGamesService.listGames(authToken);
-        return new Gson().toJson(listGamesResponse);
+        String authToken = parseAuthData(req);
+        ArrayList<GameData> listGamesResponse = listGamesService.listGames(authToken);
+        ListGamesResult listGamesResult = new ListGamesResult(listGamesResponse);
+        return new Gson().toJson(listGamesResult);
     }
 
     private Object joinGame(Request req, Response res) throws ResponseException, DataAccessException{
-        var authToken = new Gson().fromJson(req.headers("Authorization"), String.class);
+        String authToken = parseAuthData(req);
         var colorAndID = new Gson().fromJson(req.body(), JoinGameObject.class);
 
         Object joinGameResponse = joinGameService.joinGame(authToken, colorAndID);
@@ -118,9 +123,17 @@ public class Server {
     private Object createGame(Request req, Response res) throws ResponseException, DataAccessException{
         var gameNameObject = new Gson().fromJson(req.body(), GameData.class);
         String gameName = gameNameObject.gameName();
-        var authToken = new Gson().fromJson(req.headers("Authorization"), String.class);
+        String authToken = parseAuthData(req);
         Object createGameResponse = createGameService.createGame(authToken,gameName);
         return new Gson().toJson(createGameResponse);
+    }
+
+    private String parseAuthData(Request req) throws ResponseException{
+        try{
+            return new Gson().fromJson(req.headers("Authorization"), String.class);
+        } catch (JsonSyntaxException e) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
     }
 
 }

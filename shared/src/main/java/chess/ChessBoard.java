@@ -193,7 +193,7 @@ public class ChessBoard {
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
                     //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    System.out.print("b");
+                    //System.out.print("b");
                 }
                 if (r==8 && c ==4){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);

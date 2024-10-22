@@ -10,8 +10,8 @@ import model.AuthData;
 import model.UserData;
 
 public class RegisterService {
-    UserFunctions userFunctions;
-    AuthFunctions authFunctions;
+    private UserFunctions userFunctions;
+    private AuthFunctions authFunctions;
 
 
     public RegisterService(MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO){

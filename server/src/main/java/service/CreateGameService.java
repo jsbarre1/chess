@@ -9,8 +9,8 @@ import functions.GameFunctions;
 import model.GameData;
 
 public class CreateGameService {
-    AuthFunctions authFunctions;
-    GameFunctions gameFunctions;
+    private AuthFunctions authFunctions;
+    private GameFunctions gameFunctions;
 
     public CreateGameService(MemoryAuthDAO memoryAuthDAO, MemoryGameDAO memoryGameDAO){
         this.authFunctions = new AuthFunctions(memoryAuthDAO);
@@ -18,6 +18,9 @@ public class CreateGameService {
     }
 
     public GameData createGame(String authToken, String gameName) throws ResponseException, DataAccessException {
+        if(gameName == null){
+            throw new ResponseException(400, "Error: bad request");
+        }
         authFunctions.checkAuth(authToken);
         return gameFunctions.createGame(gameName);
     }

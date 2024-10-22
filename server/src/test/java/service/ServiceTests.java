@@ -9,13 +9,11 @@ import exceptions.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import models.JoinGameObject;
 import org.junit.jupiter.api.*;
-import passoff.exception.TestException;
-import passoff.model.TestResult;
-import spark.Response;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 
@@ -29,26 +27,13 @@ public class ServiceTests {
     private CreateGameService createGameService = new CreateGameService(memoryAuthDAO,memoryGameDAO);
     private LogoutService logoutService = new LogoutService(memoryAuthDAO);
     private ListGamesService listGamesService = new ListGamesService(memoryGameDAO, memoryAuthDAO);
+    private JoinGameService joinGameService = new JoinGameService(memoryGameDAO, memoryAuthDAO);
 
-    private static UserData testUser;
+    private static UserData testUser = new UserData("Test", "Testing", "Test@gmail.com");
+
     private AuthData authData;
     private final ResponseException unauthorized = new ResponseException(401, "Error: unauthorized");
     private final ResponseException alreadyTaken = new ResponseException(403, "Error: already taken");
-
-    //completed:
-    //logoutService
-    //clearService
-    //loginService
-    //registerService
-    //createGameService
-    //listGamesService
-
-    @BeforeAll
-    public static void init(){
-        //test user
-        testUser = new UserData("Test", "Testing", "Test@gmail.com");
-
-    }
 
     @BeforeEach
     public void setUp() throws ResponseException, DataAccessException{
@@ -115,7 +100,6 @@ public class ServiceTests {
     @Test
     @DisplayName("Register Failure (username exists")
     public void registerFail() throws ResponseException, DataAccessException {
-
         try {
             AuthData newAuthData = registerService.addUser(new UserData("Test", "Testing", "Test@gmail.com"));
         } catch (ResponseException e) {
@@ -147,11 +131,11 @@ public class ServiceTests {
         GameData gameId1 = createGameService.createGame(authData.authToken(), "hello");
         GameData gameId2 = createGameService.createGame(authData.authToken(), "goodbye");
 
-        Map<Integer, GameData> games = listGamesService.listGames(authData.authToken());
+        ArrayList<GameData> games = listGamesService.listGames(authData.authToken());
 
-        Map<Integer, GameData> correctGames = new HashMap<>();
-        correctGames.put(gameId1.gameID(), new GameData(gameId1.gameID(), null, null, "hello", new ChessGame()));
-        correctGames.put(gameId2.gameID(), new GameData(gameId2.gameID(), null, null, "goodbye", new ChessGame()));
+        ArrayList<GameData> correctGames = new ArrayList<>();
+        correctGames.add( new GameData(gameId1.gameID(), null, null, "hello", new ChessGame()));
+        correctGames.add( new GameData(gameId2.gameID(), null, null, "goodbye", new ChessGame()));
 
         Assertions.assertEquals(games, correctGames);
     }
@@ -159,15 +143,26 @@ public class ServiceTests {
     @Test
     @DisplayName("List Games Failure (not authenticated)")
     public void listGamesFailure() throws DataAccessException, ResponseException {
-        GameData gameId1 = createGameService.createGame(authData.authToken(), "hello");
-        GameData gameId2 = createGameService.createGame(authData.authToken(), "goodbye");
+        GameData gameID1 = createGameService.createGame(authData.authToken(), "hello");
+        GameData gameID2 = createGameService.createGame(authData.authToken(), "goodbye");
 
         try {
-            Map<Integer, GameData> games = listGamesService.listGames("123");
+            ArrayList<GameData> games = listGamesService.listGames("123");
         } catch (ResponseException e) {
             Assertions.assertEquals(e.toString(), unauthorized.toString());
         }
 
+    }
+
+    @Test
+    @DisplayName("Join Game Success")
+    public void joinGame() throws ResponseException, DataAccessException {
+        GameData gameID1 = createGameService.createGame(authData.authToken(), "hello");
+        joinGameService.joinGame(authData.authToken(), new JoinGameObject("WHITE", gameID1.gameID()));
+
+        GameData correctGame = new GameData(gameID1.gameID(), authData.username(), null, "hello", new ChessGame());
+        GameData actualGame = memoryGameDAO.getGame(gameID1.gameID());
+        Assertions.assertEquals(actualGame.toString(), correctGame.toString());
     }
 
 

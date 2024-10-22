@@ -5,10 +5,9 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryGameDAO;
 import exceptions.ResponseException;
 import model.GameData;
+import models.JoinGameObject;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class GameFunctions {
     private MemoryGameDAO memoryGameDAO;
@@ -28,12 +27,30 @@ public class GameFunctions {
         return memoryGameDAO.getGames();
     }
 
-    public GameData getGame(Integer gameId) throws DataAccessException {
-        return memoryGameDAO.getGame(gameId);
+    public ArrayList<GameData> getGamesArray() throws DataAccessException{
+        return memoryGameDAO.getGamesArray();
+    }
+
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        return memoryGameDAO.getGame(gameID);
     }
 
 
     public Map<Integer, GameData> joinGame(GameData oldGame, String playerColor, String username) throws DataAccessException{
        return memoryGameDAO.addPlayerToGame(oldGame, playerColor, username);
     }
+
+    public void alreadyJoined(GameData oldGame, JoinGameObject colorAndId) throws ResponseException{
+        if(Objects.equals(colorAndId.playerColor(), "WHITE")){
+            if(oldGame.whiteUsername() != null){
+                throw new ResponseException(403, "Error: already taken");
+            }
+        }
+        if(Objects.equals(colorAndId.playerColor(), "BLACK")){
+            if(oldGame.blackUsername() != null){
+                throw new ResponseException(403, "Error: already taken");
+            }
+        }
+    }
+
 }
