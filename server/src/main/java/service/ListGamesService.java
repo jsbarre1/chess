@@ -9,7 +9,6 @@ import functions.GameFunctions;
 import model.GameData;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class ListGamesService {
     private GameFunctions gameFunctions;

@@ -10,7 +10,6 @@ import model.AuthData;
 import model.GameData;
 import models.JoinGameObject;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class JoinGameService {
