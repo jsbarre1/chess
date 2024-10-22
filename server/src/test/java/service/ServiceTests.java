@@ -13,6 +13,7 @@ import models.JoinGameObject;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,9 +64,12 @@ public class ServiceTests {
         createGameService.createGame(johnAuthData.authToken(), "CHESSSSS");
         clearService.deleteDB();
 
+        ArrayList<GameData> emptyArray = new ArrayList<>();
+
         Assertions.assertEquals(null, memoryAuthDAO.getAuth(johnAuthData.authToken()));
         Assertions.assertEquals(null, memoryAuthDAO.getAuth(authData.authToken()));
         Assertions.assertEquals("{}", memoryGameDAO.getGames().toString());
+        Assertions.assertEquals(emptyArray.toString(), memoryGameDAO.getGamesArray().toString());
         Assertions.assertEquals(null, memoryUserDAO.getUser(johnAuthData.authToken()));
         Assertions.assertEquals(null, memoryUserDAO.getUser(authData.authToken()));
     }
@@ -129,15 +133,18 @@ public class ServiceTests {
     @DisplayName("List Games Success")
     public void listGames() throws DataAccessException, ResponseException {
         GameData gameId1 = createGameService.createGame(authData.authToken(), "hello");
-        GameData gameId2 = createGameService.createGame(authData.authToken(), "goodbye");
+        GameData gameId2 = createGameService.createGame(authData.authToken(), "good");
 
         ArrayList<GameData> games = listGamesService.listGames(authData.authToken());
 
         ArrayList<GameData> correctGames = new ArrayList<>();
         correctGames.add( new GameData(gameId1.gameID(), null, null, "hello", new ChessGame()));
-        correctGames.add( new GameData(gameId2.gameID(), null, null, "goodbye", new ChessGame()));
+        correctGames.add( new GameData(gameId2.gameID(), null, null, "good", new ChessGame()));
 
-        Assertions.assertEquals(games, correctGames);
+        games.sort(Comparator.comparing(GameData::gameID));
+        correctGames.sort(Comparator.comparing(GameData::gameID));
+
+        Assertions.assertEquals(games.toString(), correctGames.toString());
     }
 
     @Test
@@ -163,6 +170,20 @@ public class ServiceTests {
         GameData correctGame = new GameData(gameID1.gameID(), authData.username(), null, "hello", new ChessGame());
         GameData actualGame = memoryGameDAO.getGame(gameID1.gameID());
         Assertions.assertEquals(actualGame.toString(), correctGame.toString());
+    }
+
+    @Test
+    @DisplayName("Join Game Fail (spot taken)")
+    public void joinGameFail() throws ResponseException, DataAccessException {
+        GameData gameID1 = createGameService.createGame(authData.authToken(), "hello");
+        joinGameService.joinGame(authData.authToken(), new JoinGameObject("WHITE", gameID1.gameID()));
+
+        try {
+            joinGameService.joinGame(authData.authToken(), new JoinGameObject("WHITE", gameID1.gameID()));
+
+        } catch (ResponseException e) {
+            Assertions.assertEquals(e.toString(), alreadyTaken.toString());
+        }
     }
 
 

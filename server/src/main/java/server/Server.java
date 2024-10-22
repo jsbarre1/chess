@@ -23,22 +23,9 @@ public class Server {
     private final MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
     private final MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
 
-    private ClearService clearService;
-    private RegisterService registerService;
-    private LogoutService logoutService;
-    private LoginService loginService;
-    private ListGamesService listGamesService;
-    private CreateGameService createGameService;
-    private JoinGameService joinGameService;
-;
+    private final Services services;
     public Server() {
-        this.clearService = new ClearService(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
-        this.registerService = new RegisterService(memoryUserDAO, memoryAuthDAO);
-        this.logoutService = new LogoutService(memoryAuthDAO);
-        this.loginService = new LoginService(memoryAuthDAO, memoryUserDAO);
-        this.listGamesService = new ListGamesService(memoryGameDAO, memoryAuthDAO);
-        this.createGameService = new CreateGameService(memoryAuthDAO, memoryGameDAO);
-        this.joinGameService = new JoinGameService(memoryGameDAO, memoryAuthDAO);
+        services = new Services(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
     }
 
     public int run(int desiredPort) {
@@ -80,7 +67,7 @@ public class Server {
     }
 
     private Object deleteDB(Request req, Response res) throws ResponseException, DataAccessException {
-        clearService.deleteDB();
+        services.getClearService().deleteDB();
         res.status(200);
         Map<String, Object> response = new HashMap<>();
         return new Gson().toJson(response);
@@ -88,26 +75,26 @@ public class Server {
 
     private Object logout(Request req, Response res) throws ResponseException, DataAccessException{
         String authToken = parseAuthData(req);
-        Object logoutResponse = logoutService.logout(authToken);
+        Object logoutResponse = services.getLogoutService().logout(authToken);
         return new Gson().toJson(logoutResponse);
     }
 
     private Object login(Request req, Response res) throws ResponseException, DataAccessException{
         var usernameAndPassword = new Gson().fromJson(req.body(), UserData.class);
-        Object loginResponse = loginService.login(usernameAndPassword);
+        Object loginResponse = services.getLoginService().login(usernameAndPassword);
         return new Gson().toJson(loginResponse);
     }
 
     private Object registerUser(Request req, Response res) throws ResponseException, DataAccessException{
 
         var user = new Gson().fromJson(req.body(), UserData.class);
-        Object registerResponse = registerService.addUser(user);
+        Object registerResponse = services.getRegisterService().addUser(user);
         return new Gson().toJson(registerResponse);
     }
 
     private Object listGames(Request req, Response res) throws ResponseException, DataAccessException{
         String authToken = parseAuthData(req);
-        ArrayList<GameData> listGamesResponse = listGamesService.listGames(authToken);
+        ArrayList<GameData> listGamesResponse = services.getListGamesService().listGames(authToken);
         ListGamesResult listGamesResult = new ListGamesResult(listGamesResponse);
         return new Gson().toJson(listGamesResult);
     }
@@ -116,7 +103,7 @@ public class Server {
         String authToken = parseAuthData(req);
         var colorAndID = new Gson().fromJson(req.body(), JoinGameObject.class);
 
-        Object joinGameResponse = joinGameService.joinGame(authToken, colorAndID);
+        Object joinGameResponse = services.getJoinGameService().joinGame(authToken, colorAndID);
         return new Gson().toJson(joinGameResponse);
     }
 
@@ -124,7 +111,7 @@ public class Server {
         var gameNameObject = new Gson().fromJson(req.body(), GameData.class);
         String gameName = gameNameObject.gameName();
         String authToken = parseAuthData(req);
-        Object createGameResponse = createGameService.createGame(authToken,gameName);
+        Object createGameResponse = services.getCreateGameService().createGame(authToken,gameName);
         return new Gson().toJson(createGameResponse);
     }
 
