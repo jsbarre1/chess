@@ -68,14 +68,11 @@ public class ChessGame {
             return finalMoves;
         }
         Collection<ChessMove> initialMoves = liveBoard.getPiece(startPosition).pieceMoves(liveBoard, startPosition);
-
             for (ChessMove move : initialMoves) {
                 if (validateMove(move, liveBoard.getPiece(startPosition))) {
                     finalMoves.add(move);
                 }
-            //}
         }
-
         if (!isInCheck(liveBoard.getPiece(startPosition).getTeamColor())){
             for(ChessMove move: castleMoves(startPosition)){
                 if(validateCastleMove(move, liveBoard.getPiece(startPosition))){
@@ -83,7 +80,6 @@ public class ChessGame {
                 }
             }
         }
-
         if(liveBoard.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN){
             if(completedMoves.empty()){
                 return finalMoves;
@@ -91,28 +87,38 @@ public class ChessGame {
             ChessMove lastMove = completedMoves.peek();
             if(liveBoard.getPiece(lastMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN){
                 if(opposingPawnMovedTwice(completedMoves.peek())){
-                    //left
-                    if(opposingPawnOnLeft(startPosition, lastMove.getEndPosition())){
-                        if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.WHITE){
-                            finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() +1, startPosition.getColumn() -1), null));
-                        }
-                        if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.BLACK){
-                            finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() -1, startPosition.getColumn() -1), null));
-                        }
-                    }
-                    //right
-                    if(opposingPawnOnRight(startPosition, lastMove.getEndPosition())){
-                        if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.WHITE){
-                            finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() +1, startPosition.getColumn() +1), null));
-                        }
-                        if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.BLACK){
-                            finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() -1, startPosition.getColumn() +1), null));
-                        }
-                    }
+                   finalMoves.addAll(peekFunction(startPosition, lastMove));
                 }
             }
         }
 
+        return finalMoves;
+    }
+
+    private Collection<ChessMove> peekFunction(ChessPosition startPosition, ChessMove lastMove){
+        //left
+        Collection<ChessMove> finalMoves = new ArrayList<>();
+        if(opposingPawnOnLeft(startPosition, lastMove.getEndPosition())){
+            if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.WHITE){
+                finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() +1,
+                        startPosition.getColumn() -1), null));
+            }
+            if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.BLACK){
+                finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() -1,
+                        startPosition.getColumn() -1), null));
+            }
+        }
+        //right
+        if(opposingPawnOnRight(startPosition, lastMove.getEndPosition())){
+            if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.WHITE){
+                finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() +1,
+                        startPosition.getColumn() +1), null));
+            }
+            if(liveBoard.getPiece(startPosition).getTeamColor() == TeamColor.BLACK){
+                finalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() -1,
+                        startPosition.getColumn() +1), null));
+            }
+        }
         return finalMoves;
     }
 
@@ -418,10 +424,12 @@ public class ChessGame {
                     liveBoard.castle(move);
                     addCompletedMove(move);
                     if(move.getEndPosition().getColumn() == 7){
-                        addCompletedMove(new ChessMove(new ChessPosition(move.getEndPosition().getRow(), 8), new ChessPosition(move.getEndPosition().getRow(), 6), null));
+                        addCompletedMove(new ChessMove(new ChessPosition(move.getEndPosition().getRow(), 8),
+                                new ChessPosition(move.getEndPosition().getRow(), 6), null));
                     }
                     if(move.getEndPosition().getColumn() == 3){
-                        addCompletedMove(new ChessMove(new ChessPosition(move.getEndPosition().getRow(), 1), new ChessPosition(move.getEndPosition().getRow(), 4), null));
+                        addCompletedMove(new ChessMove(new ChessPosition(move.getEndPosition().getRow(), 1),
+                                new ChessPosition(move.getEndPosition().getRow(), 4), null));
                     }
                     changeTeamColor();
                     return;
@@ -445,7 +453,7 @@ public class ChessGame {
             liveBoard.movePiece(move);
             addCompletedMove(move);
             changeTeamColor();
-        } else throw new InvalidMoveException("NOT VALID MOVE");
+        } else {throw new InvalidMoveException("NOT VALID MOVE");}
 
     }
 
@@ -482,8 +490,8 @@ public class ChessGame {
             opposingEndPositionMoves.add(move.getEndPosition());
         }
 
-        if (opposingEndPositionMoves.contains(kingPosition)) return true;
-        else return false;
+        if (opposingEndPositionMoves.contains(kingPosition)){ return true;}
+        else{ return false;}
     }
 
     private Collection<ChessMove> allValidMovesEver(TeamColor teamColor){
@@ -538,10 +546,9 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         //get all this teams valid moves
-        if(isDefaultBoard()) return false;
+        if(isDefaultBoard()){ return false;}
 
-        if (isInCheck(teamColor) && allValidMovesEver(teamColor).isEmpty()) return true;
-        else return false;
+        return isInCheck(teamColor) && allValidMovesEver(teamColor).isEmpty();
     }
 
     /**
@@ -552,10 +559,9 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if(isDefaultBoard()) return false;
+        if(isDefaultBoard()) {return false;}
 
-        if (!isInCheck(teamColor) && allValidMovesEver(teamColor).isEmpty()) return true;
-        else return false;
+        return !isInCheck(teamColor) && allValidMovesEver(teamColor).isEmpty();
     }
 
     /**
@@ -580,8 +586,8 @@ public class ChessGame {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()){ return false;}
         ChessGame chessGame = (ChessGame) o;
         return teamTurnColor == chessGame.teamTurnColor && Objects.equals(liveBoard, chessGame.liveBoard);
     }

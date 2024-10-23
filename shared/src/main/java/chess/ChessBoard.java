@@ -10,7 +10,7 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    final int SIZE = 8;
+    final static int SIZE = 8;
     private ChessPiece[][] boardState = new ChessPiece[SIZE][SIZE];
     public ChessBoard() {
 
@@ -261,8 +261,8 @@ public class ChessBoard {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()){ return false;}
         ChessBoard that = (ChessBoard) o;
         return SIZE == that.SIZE && Objects.deepEquals(boardState, that.boardState);
     }
