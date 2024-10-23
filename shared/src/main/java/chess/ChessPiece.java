@@ -58,16 +58,6 @@ public class ChessPiece {
     public PieceType getPieceType() {
         return pieceType;
     }
-
-    private boolean validPosition(ChessPosition position){
-        if(position.getRow() > 8 || position.getRow()< 1){
-            return false;
-        }
-        else if(position.getColumn() > 8 || position.getColumn()< 1){
-            return false;
-        }
-        else return true;
-    }
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in

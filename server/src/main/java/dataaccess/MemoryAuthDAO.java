@@ -42,7 +42,7 @@ public class MemoryAuthDAO implements AuthDAO{
     public void deleteAuth(String authToken) throws DataAccessException{
         if(getAuth(authToken)==null){
             throw new DataAccessException("Auth Does Not Exist");
-        }else authList.remove(authToken);
+        }else {authList.remove(authToken);}
 
     }
 

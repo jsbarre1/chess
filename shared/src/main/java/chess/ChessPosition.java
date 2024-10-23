@@ -15,10 +15,10 @@ public class ChessPosition {
     public ChessPosition(int row, int col) {
         if(row > 8 || row < 1){
             this.row = -111;
-        }else this.row = row;
+        }else {this.row = row;}
         if(col > 8 || col < 1){
             this.row = -111;
-        }else this.col = col;
+        }else {this.col = col;}
     }
 
     /**

@@ -36,11 +36,14 @@ public class ChessBoard {
 
     public void movePiece(ChessMove move){
         if(move.getPromotionPiece() != null){
-            boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = new ChessPiece(getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
+            boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] =
+                    new ChessPiece(getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
         }else{
-            boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1];
+            boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] =
+                    boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1];
         }
-        boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = null;
+        boardState[move.getStartPosition().getRow()-1]
+                [move.getStartPosition().getColumn()-1] = null;
     }
 
     public void castle(ChessMove move){
@@ -64,11 +67,13 @@ public class ChessBoard {
     public void enPassant(ChessMove move, ChessMove opposingMove){
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
-        boardState[move.getEndPosition().getRow() - 1][move.getEndPosition().getColumn() - 1] = boardState[move.getStartPosition().getRow() - 1][move.getStartPosition().getColumn() - 1];
-        boardState[move.getStartPosition().getRow() - 1][move.getStartPosition().getColumn() - 1] = null;
-        boardState[opposingMove.getEndPosition().getRow() - 1][opposingMove.getEndPosition().getColumn() - 1] = null;
+        boardState[move.getEndPosition().getRow() - 1][move.getEndPosition().getColumn() - 1]
+                = boardState[move.getStartPosition().getRow() - 1][move.getStartPosition().getColumn() - 1];
+        boardState[move.getStartPosition().getRow() - 1]
+                [move.getStartPosition().getColumn() - 1] = null;
+        boardState[opposingMove.getEndPosition().getRow() - 1]
+                [opposingMove.getEndPosition().getColumn() - 1] = null;
     }
-
     /**
      * Gets a chess piece on the chessboard
      *
@@ -78,15 +83,12 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         if(position.getRow()<1|| position.getRow()>8){
-            //System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn() + "\n");
             return null;
         }
         if(position.getColumn() <1 || position.getColumn()>8){
-            //System.out.print("checked out of bounds at: " + position.getRow() + "," + position.getColumn() + "\n");
             return null;
         }
         return boardState[position.getRow()-1][position.getColumn()-1];
-        //so you pass in the 1-8, 1-8 coordinate, and it returns the piece at 0-7,0-7 board
     }
     /**
      * Sets the board to the default starting board
@@ -95,163 +97,99 @@ public class ChessBoard {
     public void resetBoard() {
         for (int r = 1; r <= SIZE; r++) {
             for (int c = 1; c <= SIZE; c++) {
-//                |r|n|b|q|k|b|n|r|
-//                |p|p|p|p|p|p|p|p|
-//                | | | | | | | | |
-//                | | | | | | | | |
-//                | | | | | | | | |
-//                | | | | | | | | |
-//                |P|P|P|P|P|P|P|P|
-//                |R|N|B|Q|K|B|N|R|
-                //white side (bottom)
+
                 if(r==1 && c ==1){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("R");
-
                 }
                 if (r==1 && c ==2){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("N");
                 }
                 if (r==1 && c ==3){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("B");
                 }
                 if (r==1 && c ==4){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("Q");
                 }
                 if (r==1 && c ==5){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //system.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("K");
-
                 }
                 if (r==1 && c ==6){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("B");
-
                 }
                 if (r==1 && c ==7){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("N");
-
                 }
                 if (r==1 && c ==8){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("R");
                 }
-
-//                |r|n|b|q|k|b|n|r|
-//                |p|p|p|p|p|p|p|p|
-//                | | | | | | | | |
-//                | | | | | | | | |
-//                | | | | | | | | |
-//                | | | | | | | | |
-//                |P|P|P|P|P|P|P|P|
-//                |R|N|B|Q|K|B|N|R|
-                //black side (top)
                 if(r==8 && c ==1){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("r");
                 }
-                if (r==8 && c ==2){
+                if (r==8 && c ==2) {
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-                    ChessPosition newPosition = new ChessPosition(r,c);
+                    ChessPosition newPosition = new ChessPosition(r, c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("n");
                 }
                 if (r==8 && c ==3){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("b");
                 }
-                if (r==8 && c ==4){
+                if (r==8 && c ==4) {
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
-                    ChessPosition newPosition = new ChessPosition(r,c);
+                    ChessPosition newPosition = new ChessPosition(r, c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("q");
-
                 }
                 if (r==8 && c ==5){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("k");
                 }
                 if (r==8 && c ==6){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("b");
-
                 }
                 if (r==8 && c ==7){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                   // System.out.print("n");
-
                 }
                 if (r==8 && c ==8){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("r");
-
                 }
-                //pawns
                 if(r == 2){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("P");
                 }
                 if(r == 7){
                     ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
                     ChessPosition newPosition = new ChessPosition(r,c);
                     addPiece(newPosition, newPiece);
-                    //System.out.print("adding piece at: " + "(" + r + ", " + c +")\n");
-                    //System.out.print("p");
-                }
+               }
 
             }
-            //System.out.print('\n');
         }
     }
 

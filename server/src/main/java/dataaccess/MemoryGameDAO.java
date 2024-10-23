@@ -59,7 +59,7 @@ public class MemoryGameDAO implements GameDAO{
             throw new DataAccessException("Game Not Found");
         }
 
-        else return targetGame;
+        else{ return targetGame;}
     }
 
     public Map<Integer, GameData> addPlayerToGame(GameData oldGame, String playerColor, String username)throws DataAccessException {
@@ -76,18 +76,5 @@ public class MemoryGameDAO implements GameDAO{
         }
     };
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MemoryGameDAO that = (MemoryGameDAO) o;
-        return Objects.equals(gameList, that.gameList);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(gameList);
-    }
 
 }

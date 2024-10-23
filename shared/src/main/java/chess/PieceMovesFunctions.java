@@ -54,7 +54,7 @@ public class PieceMovesFunctions {
         else if(position.getColumn() > 8 || position.getColumn()< 1){
             return false;
         }
-        else return true;
+        else {return true;}
     }
 
     public Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor teamColor){
