@@ -49,17 +49,23 @@ public class ChessBoard {
     public void castle(ChessMove move){
         //move king over to right spot
         getPiece(move.getStartPosition());
-        boardState[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1];
+        boardState[move.getEndPosition().getRow()-1]
+                [move.getEndPosition().getColumn()-1] =
+                boardState[move.getStartPosition().getRow()-1]
+                        [move.getStartPosition().getColumn()-1];
 
-        boardState[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = null;
+        boardState[move.getStartPosition().getRow()-1]
+                [move.getStartPosition().getColumn()-1] = null;
         //move rook depending on left or right
 
         if(move.getEndPosition().getColumn() == 7){
-            boardState[move.getEndPosition().getRow()-1][6-1] = boardState[move.getEndPosition().getRow()-1][8-1];
+            boardState[move.getEndPosition().getRow()-1][6-1] =
+                    boardState[move.getEndPosition().getRow()-1][8-1];
             boardState[move.getEndPosition().getRow()-1][8-1] = null;
         }
         if(move.getEndPosition().getColumn() == 3){
-            boardState[move.getEndPosition().getRow()-1][4-1] = boardState[move.getEndPosition().getRow()-1][1-1];
+            boardState[move.getEndPosition().getRow()-1][4-1] =
+                    boardState[move.getEndPosition().getRow()-1][1-1];
             boardState[move.getEndPosition().getRow()-1][1-1] = null;
         }
     }

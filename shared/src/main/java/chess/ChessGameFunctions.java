@@ -23,7 +23,7 @@ public class ChessGameFunctions {
     public boolean checkMoveCastle(ChessMove move){
         if(move.getStartPosition().getColumn() - move.getEndPosition().getColumn() ==2){
             return true;
-        }else return move.getEndPosition().getColumn() - move.getStartPosition().getColumn() == 2;
+        }else {return move.getEndPosition().getColumn() - move.getStartPosition().getColumn() == 2;}
     }
 
     public boolean isInCheck(ChessGame.TeamColor teamColor, ChessBoard liveBoard) {

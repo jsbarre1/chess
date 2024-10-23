@@ -12,30 +12,12 @@ public class PieceMovesFunctions {
         this.teamColor = teamColor;
     }
 
-    private Collection<ChessMove> addLeftDiagonalMoves(ChessPosition myPosition, ChessPosition leftDiagonal){
+    private Collection<ChessMove> addDiagonalOrForwardMoves(ChessPosition myPosition, ChessPosition nextPosition){
         Collection<ChessMove> pawnMoves = new ArrayList<>();
-        pawnMoves.add(new ChessMove(myPosition, leftDiagonal, ChessPiece.PieceType.QUEEN));
-        pawnMoves.add(new ChessMove(myPosition, leftDiagonal, ChessPiece.PieceType.BISHOP));
-        pawnMoves.add(new ChessMove(myPosition, leftDiagonal, ChessPiece.PieceType.ROOK));
-        pawnMoves.add(new ChessMove(myPosition, leftDiagonal, ChessPiece.PieceType.KNIGHT));
-        return pawnMoves;
-    }
-
-    private Collection<ChessMove> addRightDiagonalMoves(ChessPosition myPosition, ChessPosition rightDiagonal){
-        Collection<ChessMove> pawnMoves = new ArrayList<>();
-        pawnMoves.add(new ChessMove(myPosition, rightDiagonal, ChessPiece.PieceType.QUEEN));
-        pawnMoves.add(new ChessMove(myPosition, rightDiagonal, ChessPiece.PieceType.BISHOP));
-        pawnMoves.add(new ChessMove(myPosition, rightDiagonal, ChessPiece.PieceType.ROOK));
-        pawnMoves.add(new ChessMove(myPosition, rightDiagonal, ChessPiece.PieceType.KNIGHT));
-        return pawnMoves;
-    }
-
-    private Collection<ChessMove> addForwardMoves(ChessPosition myPosition, ChessPosition forwardMove){
-        Collection<ChessMove> pawnMoves = new ArrayList<>();
-        pawnMoves.add(new ChessMove(myPosition, forwardMove, ChessPiece.PieceType.QUEEN));
-        pawnMoves.add(new ChessMove(myPosition, forwardMove, ChessPiece.PieceType.BISHOP));
-        pawnMoves.add(new ChessMove(myPosition, forwardMove, ChessPiece.PieceType.ROOK));
-        pawnMoves.add(new ChessMove(myPosition, forwardMove, ChessPiece.PieceType.KNIGHT));
+        pawnMoves.add(new ChessMove(myPosition, nextPosition, ChessPiece.PieceType.QUEEN));
+        pawnMoves.add(new ChessMove(myPosition, nextPosition, ChessPiece.PieceType.BISHOP));
+        pawnMoves.add(new ChessMove(myPosition, nextPosition, ChessPiece.PieceType.ROOK));
+        pawnMoves.add(new ChessMove(myPosition, nextPosition, ChessPiece.PieceType.KNIGHT));
         return pawnMoves;
     }
 
@@ -94,12 +76,12 @@ public class PieceMovesFunctions {
             //promotion
             if (forwardMove.getRow() == 8){
                 if(leftDiagonalFoundPiece != null && leftDiagonalFoundPiece.getTeamColor() == ChessGame.TeamColor.BLACK) {
-                    pawnMoves.addAll(addLeftDiagonalMoves(myPosition, leftDiagonal));
+                    pawnMoves.addAll(addDiagonalOrForwardMoves(myPosition, leftDiagonal));
                 }
                 if(rightDiagonalFoundPiece != null && rightDiagonalFoundPiece.getTeamColor() == ChessGame.TeamColor.BLACK){
-                    pawnMoves.addAll(addRightDiagonalMoves(myPosition, rightDiagonal));
+                    pawnMoves.addAll(addDiagonalOrForwardMoves(myPosition, rightDiagonal));
                 }
-                pawnMoves.addAll(addForwardMoves(myPosition, forwardMove));
+                pawnMoves.addAll(addDiagonalOrForwardMoves(myPosition, forwardMove));
                 return pawnMoves;
             }
             //double forward
@@ -109,12 +91,12 @@ public class PieceMovesFunctions {
             //promotion
             if (forwardMove.getRow() == 1){
                 if(leftDiagonalFoundPiece != null && leftDiagonalFoundPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                    pawnMoves.addAll(addLeftDiagonalMoves(myPosition, leftDiagonal));
+                    pawnMoves.addAll(addDiagonalOrForwardMoves(myPosition, leftDiagonal));
                 }
                 if(rightDiagonalFoundPiece != null && rightDiagonalFoundPiece.getTeamColor() == ChessGame.TeamColor.WHITE){
-                    pawnMoves.addAll(addRightDiagonalMoves(myPosition, rightDiagonal));
+                    pawnMoves.addAll(addDiagonalOrForwardMoves(myPosition, rightDiagonal));
                 }
-                pawnMoves.addAll(addForwardMoves(myPosition, forwardMove));
+                pawnMoves.addAll(addDiagonalOrForwardMoves(myPosition, forwardMove));
                 return pawnMoves;
             }
         }
