@@ -7,7 +7,6 @@ import model.UserData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import response.CreateGameResponse;
-import server.ServerFacade;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -10,7 +10,7 @@ import request.CreateGameRequest;
 import request.JoinGameRequest;
 import response.CreateGameResponse;
 import server.Server;
-import server.ServerFacade;
+import ui.ServerFacade;
 
 import java.util.ArrayList;
 
