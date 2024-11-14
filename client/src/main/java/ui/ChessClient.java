@@ -1,6 +1,8 @@
 package ui;
 
 import exceptions.ResponseException;
+import model.AuthData;
+import model.UserData;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -8,12 +10,10 @@ import java.util.Arrays;
 public class ChessClient {
         private String visitorName = null;
         private final ServerFacade server;
-        private final String serverUrl;
         private State state = State.SIGNEDOUT;
 
     public ChessClient(String serverUrl) {
             server = new ServerFacade(serverUrl);
-            this.serverUrl = serverUrl;
         }
 
         public String eval(String input) {
@@ -22,34 +22,83 @@ public class ChessClient {
                 //var cmd = (tokens.length > 0) ? tokens[0] : "help";
                 var cmd = tokens[0];
                 var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-                return switch (cmd) {
-                    case "login" -> login(params);
-                    case "register" -> register(params);
-                    case "quit" -> "quit";
-                    case "help" -> help();
-                    default -> help();
-                };
+                if(state == State.SIGNEDOUT){
+                    return switch (cmd) {
+                        case "login" -> login(params);
+                        case "register" -> register(params);
+                        case "quit" -> "quit";
+                        case "help" -> help();
+                        default -> "♕ Welcome to 240 Chess. Type help to get started ♕\"";
+                    };
+                }else{
+                    return switch (cmd) {
+                        case "logout" -> logout();
+                        case "list" -> listGames();
+                        case "observe" -> observeGame(params);
+                        case "join" -> joinGame(params);
+                        case "create" -> createGame(params);
+                        case "quit" -> "quit";
+                        case "help" -> help();
+                        default -> "♕ Type help for commands ♕\"";
+                    };
+                }
+
             } catch (ResponseException ex) {
                 return ex.getMessage();
             }
         }
 
-        public String login(String... params) throws ResponseException {
-            if (params.length >= 1) {
+    private String createGame(String... params) {
+        System.out.println("NOT IMPLEMENTED");
+        return null;
+    }
+
+    private String joinGame(String... params) {
+        System.out.println("NOT IMPLEMENTED");
+        return null;
+    }
+
+    private String observeGame(String... params) {
+        System.out.println("NOT IMPLEMENTED");
+        return null;
+    }
+
+    private String listGames() {
+        System.out.println("NOT IMPLEMENTED");
+        return null;
+    }
+
+    public String login(String... params) throws ResponseException {
+        System.out.println(Arrays.toString(params));
+            if (params.length == 2) {
+                UserData userData = new UserData(params[0], params[1], null);
+                AuthData authData = server.loginUser(userData);
                 state = State.SIGNEDIN;
-                visitorName = String.join("-", params);
+                visitorName = authData.username();
                 return String.format("You signed in as %s.", visitorName);
             }
-            throw new ResponseException(400, "Expected: <yourname>");
-        }
+            throw new ResponseException(400, "Wrong format for login... Expected: <USERNAME> <PASSWORD");
+    }
+
+    public String logout() throws ResponseException {
+        server.logoutUser();
+        state = State.SIGNEDOUT;
+        visitorName = null;
+        return "Successfully logged out";
+    }
 
     public String register(String... params) throws ResponseException {
-        if (params.length >= 1) {
+        if (params.length == 3) {
+            UserData userData = new UserData(params);
+            visitorName = params[0];
+            server.registerUser(userData);
             state = State.SIGNEDIN;
             return String.format("You signed in as %s.", visitorName);
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
+        throw new ResponseException(400, "Wrong format for register... Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
+
+
 
         public String help() {
             if (state == State.SIGNEDOUT) {
@@ -75,4 +124,12 @@ public class ChessClient {
                 throw new ResponseException(400, "You must sign in");
             }
         }
+    public void printPrompt() {
+        System.out.print("[" + state + "]>>> ");
+    }
+
+    public void clearData() throws ResponseException {
+        System.out.println("initial clearing all data");
+        server.clearData();
+    }
 }

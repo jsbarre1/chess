@@ -1,5 +1,7 @@
 package ui;
 
+import exceptions.ResponseException;
+
 import java.util.Scanner;
 
 public class Repl {
@@ -10,17 +12,22 @@ public class Repl {
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 \"♕ Welcome to 240 Chess. Type Help to get started ♕\"");
+        System.out.println("♕ Welcome to 240 Chess. Type help to get started ♕\"");
+        try {
+            client.clearData();
+        } catch (ResponseException e) {
+            System.out.println(e.getMessage());
+        }
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
-            printPrompt();
+            client.printPrompt();
             String line = scanner.nextLine();
 
             try {
                 result = client.eval(line);
-                System.out.print(result);
+                System.out.print(result + "\n");
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -30,8 +37,6 @@ public class Repl {
     }
 
 
-    private void printPrompt() {
-        System.out.print("\n>>> ");
-    }
+
 
 }
