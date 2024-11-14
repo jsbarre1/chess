@@ -34,19 +34,7 @@ public class DrawBoard {
                     out.print(SET_TEXT_COLOR_YELLOW);
                     out.print(" " + row+ " ");
                     for (int col = 1; col <= 8; col++) {
-                        if(row  % 2 == 0){
-                            if(col  % 2 == 0){
-                                out.print(SET_BG_COLOR_MAGENTA);
-                            }else{
-                                out.print(SET_BG_COLOR_DARK_GREEN);
-                            }
-                        }else{
-                            if(col  % 2 == 1){
-                                out.print(SET_BG_COLOR_MAGENTA);
-                            }else{
-                                out.print(SET_BG_COLOR_DARK_GREEN);
-                            }
-                        }
+                        checkSquareColor(row,col);
                         printPiece(row,col);
                     }
                     out.print(SET_TEXT_COLOR_YELLOW);
@@ -72,19 +60,7 @@ public class DrawBoard {
                     out.print(SET_TEXT_COLOR_YELLOW);
                     out.print(" " + row+ " ");
                     for (int col = 8; col >= 1; col--) {
-                        if(row  % 2 == 0){
-                            if(col  % 2 == 0){
-                                out.print(SET_BG_COLOR_DARK_GREEN);
-                            }else{
-                                out.print(SET_BG_COLOR_MAGENTA);
-                            }
-                        }else{
-                            if(col  % 2 == 1){
-                                out.print(SET_BG_COLOR_DARK_GREEN);
-                            }else{
-                                out.print(SET_BG_COLOR_MAGENTA);
-                            }
-                        }
+                        checkSquareColor(row,col);
 
                         printPiece(row,col);
                     }
@@ -105,6 +81,22 @@ public class DrawBoard {
         }
         out.print(RESET_BG_COLOR);
         out.print(RESET_TEXT_COLOR);
+    }
+
+    private void checkSquareColor(int row, int col){
+        if(row  % 2 == 0){
+            if(col  % 2 == 0){
+                out.print(SET_BG_COLOR_MAGENTA);
+            }else{
+                out.print(SET_BG_COLOR_DARK_GREEN);
+            }
+        }else{
+            if(col  % 2 == 1){
+                out.print(SET_BG_COLOR_MAGENTA);
+            }else{
+                out.print(SET_BG_COLOR_DARK_GREEN);
+            }
+        }
     }
 
     private void printPiece(int row, int col){

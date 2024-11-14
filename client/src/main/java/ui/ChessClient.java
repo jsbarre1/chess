@@ -136,7 +136,12 @@ public class ChessClient {
     public String login(String... params) throws ResponseException {
             if (params.length == 2) {
                 UserData userData = new UserData(params[0], params[1], null);
-                AuthData authData = server.loginUser(userData);
+                AuthData authData;
+                try {
+                    authData = server.loginUser(userData);
+                }catch (ResponseException e){
+                    return "Username not found";
+                }
                 state = State.SIGNEDIN;
                 visitorName = authData.username();
                 return String.format("You signed in as %s.", visitorName);
