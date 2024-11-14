@@ -5,11 +5,13 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import response.CreateGameResponse;
 import server.ServerFacade;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ChessClient {
         private String visitorName = null;
@@ -53,7 +55,6 @@ public class ChessClient {
         }
 
     private String createGame(String... params) throws ResponseException {
-        System.out.println(Arrays.toString(params));
         if (params.length == 1) {
             CreateGameRequest request = new CreateGameRequest(params[0]);
             CreateGameResponse response = server.createChessGame(request);
@@ -62,9 +63,24 @@ public class ChessClient {
         throw new ResponseException(400, "Wrong format for create... Expected: <GAMENAME> ");
     }
 
-    private String joinGame(String... params) {
-        System.out.println("NOT IMPLEMENTED");
-        return null;
+    private String joinGame(String... params) throws ResponseException {
+        if (params.length == 2) {
+            int parsedInt;
+            try {
+                parsedInt = Integer.parseInt(params[0]);
+            }catch (NumberFormatException e ){
+                return "please input a number for the ID";
+            }
+            if(!Objects.equals(params[1], "black") && !Objects.equals(params[1], "white")){
+                return "please choose WHITE or BLACK";
+            }
+
+            JoinGameRequest request = new JoinGameRequest(params[1], parsedInt);
+            server.joinGame(request);
+            return "successfully joined game";
+        }
+        throw new ResponseException(400, "Wrong format for join... Expected: <ID> [WHITE|BLACK] ");
+
     }
 
     private String observeGame(String... params) {
@@ -77,7 +93,7 @@ public class ChessClient {
         StringBuilder result = new StringBuilder();
         int i = 1;
         for (GameData game : gameData) {
-            result.append("Name of Game: ").append(game.gameName()).append(" ID: ").append(i).append("\n");
+            result.append("Name of Game: \"").append(game.gameName()).append("\" | ID: ").append(i).append("\n");
             i++;
         }
 
@@ -88,7 +104,6 @@ public class ChessClient {
     }
 
     public String login(String... params) throws ResponseException {
-        System.out.println(Arrays.toString(params));
             if (params.length == 2) {
                 UserData userData = new UserData(params[0], params[1], null);
                 AuthData authData = server.loginUser(userData);
