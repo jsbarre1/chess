@@ -1,7 +1,4 @@
 package ui;
-
-import exceptions.ResponseException;
-
 import java.util.Scanner;
 
 public class Repl {
