@@ -2,9 +2,13 @@ package ui;
 
 import exceptions.ResponseException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
+import request.CreateGameRequest;
+import response.CreateGameResponse;
 import server.ServerFacade;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ChessClient {
@@ -48,9 +52,14 @@ public class ChessClient {
             }
         }
 
-    private String createGame(String... params) {
-        System.out.println("NOT IMPLEMENTED");
-        return null;
+    private String createGame(String... params) throws ResponseException {
+        System.out.println(Arrays.toString(params));
+        if (params.length == 1) {
+            CreateGameRequest request = new CreateGameRequest(params[0]);
+            CreateGameResponse response = server.createChessGame(request);
+            return "successfully created game";
+        }
+        throw new ResponseException(400, "Wrong format for create... Expected: <GAMENAME> ");
     }
 
     private String joinGame(String... params) {
@@ -63,9 +72,19 @@ public class ChessClient {
         return null;
     }
 
-    private String listGames() {
-        System.out.println("NOT IMPLEMENTED");
-        return null;
+    private String listGames() throws ResponseException {
+        ArrayList<GameData> gameData = server.listChessGames();
+        StringBuilder result = new StringBuilder();
+        int i = 1;
+        for (GameData game : gameData) {
+            result.append("Name of Game: ").append(game.gameName()).append(" ID: ").append(i).append("\n");
+            i++;
+        }
+
+        if (result.isEmpty()){
+            return "no games found";
+        }
+        return result.toString();
     }
 
     public String login(String... params) throws ResponseException {
@@ -77,7 +96,7 @@ public class ChessClient {
                 visitorName = authData.username();
                 return String.format("You signed in as %s.", visitorName);
             }
-            throw new ResponseException(400, "Wrong format for login... Expected: <USERNAME> <PASSWORD");
+            throw new ResponseException(400, "Wrong format for login... Expected: <USERNAME> <PASSWORD>");
     }
 
     public String logout() throws ResponseException {
@@ -100,7 +119,8 @@ public class ChessClient {
 
 
 
-        public String help() {
+
+    public String help() {
             if (state == State.SIGNEDOUT) {
                 return """
                     register <USERNAME> <PASSWORD> <EMAIL> - TO CREATE AN ACCOUNT
@@ -114,16 +134,12 @@ public class ChessClient {
                 list - games
                 join <ID> [WHITE|BLACK] - a game
                 observe <ID> - a game
+                logout - when you are done
                 quit - playing chess
                 help - with possible commands
                 """;
-        }
+    }
 
-        private void assertSignedIn() throws ResponseException {
-            if (state == State.SIGNEDOUT) {
-                throw new ResponseException(400, "You must sign in");
-            }
-        }
     public void printPrompt() {
         System.out.print("[" + state + "]>>> ");
     }
