@@ -91,9 +91,29 @@ public class ChessClient {
 
     }
 
-    private String observeGame(String... params) {
-        System.out.println("NOT IMPLEMENTED");
-        return null;
+    private String observeGame(String... params) throws ResponseException {
+        if (params.length == 1) {
+            int parsedInt;
+            try {
+                parsedInt = Integer.parseInt(params[0]);
+            }catch (NumberFormatException e ){
+                return "please input a number for the ID";
+            }
+            ArrayList<GameData> games = server.listChessGames();
+
+            if(parsedInt > games.size()){
+                return "enter valid ID";
+            }
+
+            GameData gameData = games.get(parsedInt-1);
+
+            DrawBoard drawBoard = new DrawBoard(gameData.game().getBoard());
+            drawBoard.printBoard();
+
+            return "observing game: " + parsedInt;
+        }
+        throw new ResponseException(400, "Wrong format for join... Expected: <ID> [WHITE|BLACK] ");
+
     }
 
     private String listGames() throws ResponseException {
