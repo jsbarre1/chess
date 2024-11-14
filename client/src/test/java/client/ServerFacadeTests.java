@@ -11,7 +11,6 @@ import request.JoinGameRequest;
 import response.CreateGameResponse;
 import server.Server;
 import server.ServerFacade;
-import service.Services;
 
 import java.util.ArrayList;
 
@@ -20,11 +19,8 @@ public class ServerFacadeTests {
     UserData testUser = new UserData("username", "password", "email");
     private AuthDAO authDAO;
     private GameDAO gameDAO;
-    private UserDAO userDAO;
-    private Services services;
     private static Server server;
     private static ServerFacade serverFace;
-    private AuthData loggedIn;
     private String testAuthToken;
 
     @BeforeAll
@@ -39,11 +35,11 @@ public class ServerFacadeTests {
     public void setUp() throws ResponseException, DataAccessException {
         authDAO = new SQLAuthDAO();
         gameDAO = new SQLGameDAO();
-        userDAO = new SQLUserDAO();
+        UserDAO userDAO = new SQLUserDAO();
         authDAO.deleteAllAuths();
         userDAO.deleteAllUsers();
         gameDAO.deleteAllGames();
-        loggedIn = serverFace.registerUser(testUser);
+        AuthData loggedIn = serverFace.registerUser(testUser);
         testAuthToken= loggedIn.authToken();
     }
 
@@ -144,7 +140,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void joinGameFail() throws ResponseException, DataAccessException {
+    public void joinGameFail() throws ResponseException {
         CreateGameResponse response = serverFace.createChessGame(new CreateGameRequest("game"));
         JoinGameRequest request = new JoinGameRequest("WHITE", response.gameID());
         serverFace.joinGame(request);
