@@ -97,11 +97,24 @@ public class ServerFacade {
         }
     }
 
+    private String getResponseBody(HttpURLConnection http) throws IOException {
+        try (var inputStream = http.getInputStream()) {
+            var reader = new BufferedReader(new InputStreamReader(inputStream));
+            var sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            return sb.toString();
+        }
+    }
+
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         var message = http.getResponseMessage();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, message);
+            var responseBody = getResponseBody(http);
+            throw new ResponseException(status, "failure: " + message + ", responseBody: " + responseBody);
         }
     }
 

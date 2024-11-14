@@ -25,7 +25,6 @@ public class ChessClient {
         public String eval(String input) {
             try {
                 var tokens = input.toLowerCase().split(" ");
-                //var cmd = (tokens.length > 0) ? tokens[0] : "help";
                 var cmd = tokens[0];
                 var params = Arrays.copyOfRange(tokens, 1, tokens.length);
                 if(state == State.SIGNEDOUT){
@@ -71,12 +70,21 @@ public class ChessClient {
             }catch (NumberFormatException e ){
                 return "please input a number for the ID";
             }
+
             if(!Objects.equals(params[1], "black") && !Objects.equals(params[1], "white")){
                 return "please choose WHITE or BLACK";
             }
+            ArrayList<GameData> games = server.listChessGames();
 
-            JoinGameRequest request = new JoinGameRequest(params[1], parsedInt);
+            if(parsedInt > games.size()){
+                return "enter valid ID";
+            }
+
+            GameData gameData = games.get(parsedInt-1);
+
+            JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(), gameData.gameID());
             server.joinGame(request);
+
             return "successfully joined game";
         }
         throw new ResponseException(400, "Wrong format for join... Expected: <ID> [WHITE|BLACK] ");
@@ -93,7 +101,9 @@ public class ChessClient {
         StringBuilder result = new StringBuilder();
         int i = 1;
         for (GameData game : gameData) {
-            result.append("Name of Game: \"").append(game.gameName()).append("\" | ID: ").append(i).append("\n");
+            result.append(i).append(" | ").append("GAMENAME: \"")
+                    .append(game.gameName()).append("\" | WHITE USER: \"").append(game.whiteUsername())
+                    .append("\" | BLACK USER: \"").append(game.blackUsername()).append("\"\n");
             i++;
         }
 
@@ -125,7 +135,11 @@ public class ChessClient {
         if (params.length == 3) {
             UserData userData = new UserData(params);
             visitorName = params[0];
-            server.registerUser(userData);
+            try {
+                server.registerUser(userData);
+            }catch (ResponseException e){
+                return "Username already taken";
+            }
             state = State.SIGNEDIN;
             return String.format("You signed in as %s.", visitorName);
         }

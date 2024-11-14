@@ -13,11 +13,6 @@ public class Repl {
 
     public void run() {
         System.out.println("♕ Welcome to 240 Chess. Type help to get started ♕\"");
-        try {
-            client.clearData();
-        } catch (ResponseException e) {
-            System.out.println(e.getMessage());
-        }
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
