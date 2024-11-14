@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class ServerFacade {
 
     private final String serverUrl;
-
+    private String authToken;
     public ServerFacade(String url) {
         serverUrl = url;
     }
@@ -22,25 +22,29 @@ public class ServerFacade {
     public void logoutUser(AuthData authToken) throws ResponseException{
         var path = "/session";
         this.makeRequest("DELETE", path, authToken, null);
+        authToken = null;
     }
 
     public AuthData loginUser(UserData userData) throws ResponseException{
         var path = "/session";
-        var temp = this.makeRequest("POST", path, userData, AuthData.class);
-        return temp;
+        AuthData response = this.makeRequest("POST", path, userData, AuthData.class);
+        authToken = response.authToken();
+        return response;
     }
 
 
     public AuthData registerUser(UserData userData) throws ResponseException{
         var path = "/user";
-        return this.makeRequest("POST", path, userData, AuthData.class);
+        AuthData response = this.makeRequest("POST", path, userData, AuthData.class);
+        authToken = response.authToken();
+        return response;
     }
 
-//    private ArrayList<GameData> listGames() throws ResponseException{
-//        var path = "/game";
-//        var hehe = this.makeRequest("GET", path, null, GameData.class);
-//        return new ArrayList<>();
-//    }
+    private ArrayList<GameData> listGames() throws ResponseException{
+        var path = "/game";
+        var hehe = this.makeRequest("GET", path, null, null);
+        return new ArrayList<>();
+    }
 //
 //    public Object joinGame(Request req, Response res) throws ResponseException{
 //        var path = "/game";
@@ -57,6 +61,9 @@ public class ServerFacade {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
+            if (authToken != null) {
+                http.setRequestProperty("Authorization", authToken);
+            }
             http.setDoOutput(true);
 
             writeBody(request, http);
