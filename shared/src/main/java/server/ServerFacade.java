@@ -41,7 +41,7 @@ public class ServerFacade {
         return response;
     }
 
-    private ArrayList<GameData> listGames() throws ResponseException{
+    public ArrayList<GameData> listGames() throws ResponseException{
         var path = "/game";
         ListGamesResponse response = this.makeRequest("GET", path, null, ListGamesResponse.class);
         return response.games();

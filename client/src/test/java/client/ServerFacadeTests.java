@@ -11,6 +11,8 @@ import server.Server;
 import server.ServerFacade;
 import service.Services;
 
+import java.util.ArrayList;
+
 
 public class ServerFacadeTests {
     UserData testUser = new UserData("username", "password", "email");
@@ -71,8 +73,13 @@ public class ServerFacadeTests {
     @Test
     public void createGame() throws ResponseException, DataAccessException {
         CreateGameRequest response = serverFace.createChessGame(new CreateGameRequest("game"));
-
-
     }
+
+    @Test
+    public void listGames() throws ResponseException, DataAccessException {
+        ArrayList<GameData> response = serverFace.listGames();
+    }
+
+
 
 }
