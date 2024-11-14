@@ -3,8 +3,10 @@ package client;
 import dataaccess.*;
 import exceptions.ResponseException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import request.CreateGameRequest;
 import server.Server;
 import server.ServerFacade;
 import service.Services;
@@ -17,7 +19,7 @@ public class ServerFacadeTests {
     private UserDAO userDAO;
     private Services services;
     private static Server server;
-    private static ServerFacade serverFacade;
+    private static ServerFacade serverFace;
     private AuthData loggedIn;
     private String testAuthToken;
 
@@ -26,7 +28,7 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(8080);
         System.out.println("Started test HTTP server on " + port);
-        serverFacade = new ServerFacade("http://localhost:8080");
+        serverFace = new ServerFacade("http://localhost:8080");
     }
 
     @BeforeEach
@@ -37,7 +39,7 @@ public class ServerFacadeTests {
         authDAO.deleteAllAuths();
         userDAO.deleteAllUsers();
         gameDAO.deleteAllGames();
-        loggedIn = serverFacade.registerUser(testUser);
+        loggedIn = serverFace.registerUser(testUser);
         testAuthToken= loggedIn.authToken();
     }
 
@@ -56,14 +58,21 @@ public class ServerFacadeTests {
     @Test
     public void logout () throws ResponseException, DataAccessException {
         AuthData authData = new AuthData(null, testAuthToken);
-        serverFacade.logoutUser(authData);
+        serverFace.logoutUser(authData);
         Assertions.assertNull(authDAO.getAuth(testAuthToken));
     }
     @Test
     public void login() throws ResponseException, DataAccessException {
-        AuthData actual = serverFacade.loginUser(testUser);
+        AuthData actual = serverFace.loginUser(testUser);
         AuthData expected = authDAO.getAuth(actual.authToken());
         Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void createGame() throws ResponseException, DataAccessException {
+        CreateGameRequest response = serverFace.createChessGame(new CreateGameRequest("game"));
+
+
     }
 
 }

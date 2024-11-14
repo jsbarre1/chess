@@ -1,11 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
-import com.sun.net.httpserver.Request;
 import exceptions.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import request.CreateGameRequest;
+import response.ListGamesResponse;
 
 import java.io.*;
 import java.net.*;
@@ -42,19 +43,21 @@ public class ServerFacade {
 
     private ArrayList<GameData> listGames() throws ResponseException{
         var path = "/game";
-        var hehe = this.makeRequest("GET", path, null, null);
-        return new ArrayList<>();
+        ListGamesResponse response = this.makeRequest("GET", path, null, ListGamesResponse.class);
+        return response.games();
     }
+
 //
 //    public Object joinGame(Request req, Response res) throws ResponseException{
 //        var path = "/game";
 //        return this.makeRequest("PUT", path, pet, Pet.class);
 //    }
 //
-//    public Object createGame(Request req, Response res) throws ResponseException{
-//        var path = "/game";
-//        return this.makeRequest("POST", path, pet, Pet.class);
-//    }
+
+    public CreateGameRequest createChessGame(CreateGameRequest gameName) throws ResponseException{
+        var path = "/game";
+        return this.makeRequest("POST", path, gameName, CreateGameRequest.class);
+    }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
