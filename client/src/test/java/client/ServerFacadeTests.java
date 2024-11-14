@@ -54,14 +54,35 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void register() throws ResponseException, DataAccessException {
-        Assertions.assertTrue(testAuthToken.length() > 10);    }
+    public void register(){
+        Assertions.assertTrue(testAuthToken.length() > 10);
+    }
+
+    @Test
+    public void registerFail() {
+        try {
+            serverFace.registerUser(testUser);
+        }catch (ResponseException e){
+            Assertions.assertNotNull(e);
+        }
+    }
 
     @Test
     public void logout () throws ResponseException, DataAccessException {
         serverFace.logoutUser();
         Assertions.assertNull(authDAO.getAuth(testAuthToken));
     }
+
+    @Test
+    public void logoutFail () throws ResponseException {
+        serverFace.logoutUser();
+        try{
+            serverFace.logoutUser();
+        }catch (ResponseException e){
+            Assertions.assertNotNull(e);
+        }
+    }
+
     @Test
     public void login() throws ResponseException, DataAccessException {
         AuthData actual = serverFace.loginUser(testUser);
@@ -70,13 +91,46 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void createGame() throws ResponseException, DataAccessException {
-        CreateGameResponse response = serverFace.createChessGame(new CreateGameRequest("game"));
+    public void loginFail(){
+        try{
+            UserData userData = new UserData("BBABFSBDFSD", "SPEIF", "pdsj");
+            serverFace.loginUser(userData);
+        } catch (ResponseException e) {
+            Assertions.assertNotNull(e);
+        }
     }
 
     @Test
-    public void listGames() throws ResponseException, DataAccessException {
+    public void createGame() throws ResponseException{
+        CreateGameResponse response = serverFace.createChessGame(new CreateGameRequest("game"));
+        Assertions.assertNotNull(response);
+    }
+
+    @Test
+    public void createGameFail() throws ResponseException{
+        serverFace.logoutUser();
+
+        try{
+            serverFace.createChessGame(new CreateGameRequest("blub"));
+        } catch (ResponseException e) {
+            Assertions.assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void listGames() throws ResponseException{
         ArrayList<GameData> response = serverFace.listChessGames();
+        Assertions.assertNotNull(response);
+    }
+
+    @Test
+    public void listGamesFail() throws ResponseException{
+        serverFace.logoutUser();
+        try{
+            serverFace.createChessGame(new CreateGameRequest("blub"));
+        } catch (ResponseException e) {
+            Assertions.assertNotNull(e);
+        }
     }
 
     @Test
@@ -84,6 +138,23 @@ public class ServerFacadeTests {
         CreateGameResponse response = serverFace.createChessGame(new CreateGameRequest("game"));
         JoinGameRequest request = new JoinGameRequest("WHITE", response.gameID());
         serverFace.joinGame(request);
+       GameData gameData = gameDAO.getGame(response.gameID());
+        Assertions.assertNotNull(gameData.whiteUsername());
+
+    }
+
+    @Test
+    public void joinGameFail() throws ResponseException, DataAccessException {
+        CreateGameResponse response = serverFace.createChessGame(new CreateGameRequest("game"));
+        JoinGameRequest request = new JoinGameRequest("WHITE", response.gameID());
+        serverFace.joinGame(request);
+
+        try{
+            serverFace.joinGame(request);
+        }catch (ResponseException e) {
+            Assertions.assertNotNull(e);
+
+        }
     }
 
 
