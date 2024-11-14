@@ -22,9 +22,9 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public void logoutUser(AuthData authToken) throws ResponseException{
+    public void logoutUser() throws ResponseException{
         var path = "/session";
-        this.makeRequest("DELETE", path, authToken, null);
+        this.makeRequest("DELETE", path, null, null);
         authToken = null;
     }
 
