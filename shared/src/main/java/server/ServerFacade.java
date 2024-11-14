@@ -6,6 +6,8 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
+import response.CreateGameResponse;
 import response.ListGamesResponse;
 
 import java.io.*;
@@ -41,22 +43,22 @@ public class ServerFacade {
         return response;
     }
 
-    public ArrayList<GameData> listGames() throws ResponseException{
+    public ArrayList<GameData> listChessGames() throws ResponseException{
         var path = "/game";
         ListGamesResponse response = this.makeRequest("GET", path, null, ListGamesResponse.class);
         return response.games();
     }
 
-//
-//    public Object joinGame(Request req, Response res) throws ResponseException{
-//        var path = "/game";
-//        return this.makeRequest("PUT", path, pet, Pet.class);
-//    }
-//
 
-    public CreateGameRequest createChessGame(CreateGameRequest gameName) throws ResponseException{
+    public void joinGame(JoinGameRequest request) throws ResponseException{
         var path = "/game";
-        return this.makeRequest("POST", path, gameName, CreateGameRequest.class);
+        this.makeRequest("PUT", path, request, null);
+    }
+
+
+    public CreateGameResponse createChessGame(CreateGameRequest gameName) throws ResponseException{
+        var path = "/game";
+        return this.makeRequest("POST", path, gameName, CreateGameResponse.class);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {

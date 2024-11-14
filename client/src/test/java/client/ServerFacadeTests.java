@@ -7,6 +7,8 @@ import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
+import response.CreateGameResponse;
 import server.Server;
 import server.ServerFacade;
 import service.Services;
@@ -72,13 +74,22 @@ public class ServerFacadeTests {
 
     @Test
     public void createGame() throws ResponseException, DataAccessException {
-        CreateGameRequest response = serverFace.createChessGame(new CreateGameRequest("game"));
+        CreateGameResponse response = serverFace.createChessGame(new CreateGameRequest("game"));
     }
 
     @Test
     public void listGames() throws ResponseException, DataAccessException {
-        ArrayList<GameData> response = serverFace.listGames();
+        ArrayList<GameData> response = serverFace.listChessGames();
     }
+
+    @Test
+    public void joinGame() throws ResponseException, DataAccessException {
+        CreateGameResponse response = serverFace.createChessGame(new CreateGameRequest("game"));
+        JoinGameRequest request = new JoinGameRequest("WHITE", response.gameID());
+        serverFace.joinGame(request);
+    }
+
+
 
 
 
