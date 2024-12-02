@@ -32,7 +32,7 @@ public class ChessClient {
                         case "register" -> register(params);
                         case "quit" -> "quit";
                         case "help" -> help();
-                        default -> "♕ Welcome to 240 Chess. Type help to get started ♕\"";
+                        default -> "♕ Welcome to 240 Chess. Type help to get started ♕";
                     };
                 }else{
                     return switch (cmd) {
@@ -78,11 +78,22 @@ public class ChessClient {
             if(parsedInt > games.size()){
                 return "enter valid ID";
             }
+            if(parsedInt < 1){
+                return "enter valid ID";
+            }
 
             GameData gameData = games.get(parsedInt-1);
 
-            JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(), gameData.gameID());
-            server.joinGame(request);
+            try{
+                JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(), gameData.gameID());
+                server.joinGame(request);
+            } catch (ResponseException e) {
+                return "That color is full for that game";
+            }
+
+            DrawBoard drawBoard = new DrawBoard(gameData.game().getBoard());
+            drawBoard.printBoard();
+
 
             return "successfully joined game";
         }
@@ -101,6 +112,10 @@ public class ChessClient {
             ArrayList<GameData> games = server.listChessGames();
 
             if(parsedInt > games.size()){
+                return "enter valid ID";
+            }
+
+            if(parsedInt < 1){
                 return "enter valid ID";
             }
 
@@ -139,7 +154,7 @@ public class ChessClient {
                 try {
                     authData = server.loginUser(userData);
                 }catch (ResponseException e){
-                    return "Username not found";
+                    return "Username or password incorrect";
                 }
                 state = State.SIGNEDIN;
                 visitorName = authData.username();
