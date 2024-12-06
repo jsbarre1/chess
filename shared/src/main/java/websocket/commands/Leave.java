@@ -1,4 +1,4 @@
 package websocket.commands;
 
-public class LeaveCommand {
+public class Leave {
 }

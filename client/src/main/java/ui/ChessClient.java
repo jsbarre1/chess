@@ -16,6 +16,7 @@ public class ChessClient {
         private String visitorName = null;
         private final ServerFacade server;
         private State state = State.SIGNEDOUT;
+        private Boolean activeGame = false;
 
     public ChessClient(String serverUrl) {
             server = new ServerFacade(serverUrl);
@@ -34,7 +35,7 @@ public class ChessClient {
                         case "help" -> help();
                         default -> "♕ Welcome to 240 Chess. Type help to get started ♕";
                     };
-                }else{
+                }else if(state == State.SIGNEDIN && !activeGame){
                     return switch (cmd) {
                         case "logout" -> logout();
                         case "list" -> listGames();
@@ -45,12 +46,23 @@ public class ChessClient {
                         case "help" -> help();
                         default -> "♕ Type help for commands ♕\"";
                     };
+                } else {
+                    return switch (cmd) {
+                        case "help" -> helpGameplay();
+                        case "redraw" -> redraw();
+                        case "mm" -> makeMove(params);
+                        case "resign" -> resign();
+                        case "highlight" -> highlight(params);
+                        case "leave" -> leave();
+                        default -> "♕ Type help for commands ♕\"";
+                    };
                 }
 
             } catch (ResponseException ex) {
                 return ex.getMessage();
             }
         }
+
 
     private String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
@@ -94,6 +106,7 @@ public class ChessClient {
             DrawBoard drawBoard = new DrawBoard(gameData.game().getBoard());
             drawBoard.printBoard();
 
+            activeGame = true;
 
             return "successfully joined game";
         }
@@ -123,7 +136,6 @@ public class ChessClient {
 
             DrawBoard drawBoard = new DrawBoard(gameData.game().getBoard());
             drawBoard.printBoard();
-
             return "observing game: " + parsedInt;
         }
         throw new ResponseException(400, "Wrong format for join... Expected: <ID> [WHITE|BLACK] ");
@@ -185,9 +197,6 @@ public class ChessClient {
         throw new ResponseException(400, "Wrong format for register... Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
-
-
-
     public String help() {
             if (state == State.SIGNEDOUT) {
                 return """
@@ -212,8 +221,23 @@ public class ChessClient {
         System.out.print("[" + state + "]>>> ");
     }
 
-    public void clearData() throws ResponseException {
-        System.out.println("initial clearing all data");
-        server.clearData();
+    public String helpGameplay(){
+        return "";
     }
+    public String leave(){
+        return "Leaving game";
+    }
+    public String makeMove(String... params){
+        return "";
+    }
+    public String resign(){
+        return "";
+    }
+    public String highlight(String... params){
+        return "";
+    }
+    public String redraw(){
+        return "";
+    }
+
 }

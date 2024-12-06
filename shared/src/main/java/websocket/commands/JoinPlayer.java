@@ -1,4 +1,4 @@
 package websocket.commands;
 
-public class MakeMoveCommand {
+public class JoinPlayer {
 }
