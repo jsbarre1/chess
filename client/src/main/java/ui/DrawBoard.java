@@ -4,6 +4,7 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static ui.EscapeSequences.*;
@@ -19,16 +20,26 @@ public class DrawBoard {
     }
 
     public void printBoard(ChessGame.TeamColor teamColor, ChessGame chessGame, Collection<ChessMove> validMoves){
+        Collection<ChessPosition> highlightThese = new ArrayList<>();
+
+        if(validMoves != null){
+            for (ChessMove validMove : validMoves){
+                highlightThese.add(validMove.getEndPosition());
+            }
+        }
+
         if(teamColor == ChessGame.TeamColor.BLACK){
-            printBlack();
+            printBlack(highlightThese);
         }else {
-            printWhite();
+            printWhite(highlightThese);
         }
         out.print(RESET_BG_COLOR);
         out.print(RESET_TEXT_COLOR);
+
+
     }
 
-    private void printBlack(){
+    private void printBlack(Collection<ChessPosition> highlighted){
         out.print(ERASE_SCREEN);
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_BOLD);
@@ -43,7 +54,7 @@ public class DrawBoard {
             out.print(" " + row+ " ");
             for (int col = 1; col <= 8; col++) {
                 checkSquareColor(row,col);
-                printPiece(row,col);
+                printPiece(row,col, highlighted);
             }
             out.print(SET_TEXT_COLOR_YELLOW);
             out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -58,7 +69,7 @@ public class DrawBoard {
         out.print("\n");
     }
 
-    private void printWhite(){
+    private void printWhite(Collection<ChessPosition> highlighted){
         out.print(ERASE_SCREEN);
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_BOLD);
@@ -72,8 +83,7 @@ public class DrawBoard {
             out.print(" " + row+ " ");
             for (int col = 8; col >= 1; col--) {
                 checkSquareColor(row,col);
-
-                printPiece(row,col);
+                printPiece(row,col, highlighted);
             }
             out.print(SET_TEXT_COLOR_YELLOW);
             out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -105,14 +115,17 @@ public class DrawBoard {
         }
     }
 
-    private void printPiece(int row, int col){
+    private void printPiece(int row, int col, Collection<ChessPosition> highlighted){
         ChessPosition position = new ChessPosition(row, col);
         ChessPiece piece = board.getPiece(position);
-
+        if(highlighted.contains(position)){
+            out.print(SET_BG_COLOR_YELLOW);
+        }
         if (piece != null){
             switch(piece.getTeamColor()){
                 case WHITE -> {
                     out.print(SET_TEXT_COLOR_WHITE);
+
                     switch (piece.getPieceType()) {
                         case KING -> out.print(WHITE_KING);
                         case ROOK -> out.print(WHITE_ROOK);

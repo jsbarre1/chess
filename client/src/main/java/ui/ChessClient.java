@@ -7,7 +7,6 @@ import model.GameData;
 import model.UserData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
-import response.CreateGameResponse;
 import websocket.NotificationHandler;
 import websocket.WSClient;
 import websocket.messages.LoadGameMessage;
@@ -30,7 +29,7 @@ public class ChessClient implements NotificationHandler {
   private ChessGame currGameData;
   private ChessGame.TeamColor currTeamColor;
   private WSClient ws;
-  private String serverUrl;
+  private final String serverUrl;
   private int currGameID;
 
 
@@ -85,7 +84,7 @@ public class ChessClient implements NotificationHandler {
   private String createGame(String... params) throws ResponseException {
     if (params.length == 1) {
       CreateGameRequest request=new CreateGameRequest(params[0]);
-      CreateGameResponse response=serverFacade.createChessGame(request);
+      serverFacade.createChessGame(request);
       return "successfully created game";
     }
     throw new ResponseException(400, "Wrong format for create... Expected: <GAMENAME> ");
@@ -136,9 +135,6 @@ public class ChessClient implements NotificationHandler {
       activeGame=true;
 
       System.out.println(" ");
-      DrawBoard drawBoard=new DrawBoard(gameData.game().getBoard());
-      //drawBoard.printBoard(currTeamColor, gameData.game(), null);
-
       return "successfully joined game as " + currTeamColor;
     }
     throw new ResponseException(400, "Wrong format for join... Expected: <ID> [WHITE|BLACK] ");
@@ -165,8 +161,6 @@ public class ChessClient implements NotificationHandler {
       GameData gameData=games.get(parsedInt - 1);
       currGameID=gameData.gameID();
       activeGame=true;
-      DrawBoard drawBoard=new DrawBoard(gameData.game().getBoard());
-
       ws=new WSClient(serverUrl, this);
       ws.joinObserver(currGameID, currentUser.authToken(), null);
       return "observing game: " + parsedInt;
@@ -301,9 +295,9 @@ public class ChessClient implements NotificationHandler {
         return "You are observing not playing";
       }
       ChessPosition start=new ChessPosition(Character.getNumericValue(params[0].charAt(1)),
-              toNumber.get((params[0].charAt(0))));
+             9- toNumber.get((params[0].charAt(0))));
       ChessPosition end=new ChessPosition(Character.getNumericValue(params[1].charAt(1)),
-              toNumber.get(params[1].charAt(0)));
+              9-toNumber.get(params[1].charAt(0)));
 
       ChessPiece.PieceType promotionPiece=null;
       if (params.length >= 3) {
@@ -312,7 +306,8 @@ public class ChessClient implements NotificationHandler {
       ChessMove move=new ChessMove(start, end, promotionPiece);
       ws.makeMove(currGameID, currentUser.authToken(), move);
     } else {
-      throw new ResponseException(400, "Expected: <FROM> <TO> <PROMOTION-PIECE> (promotion piece only applicable with promotion of pawn)");
+      throw new ResponseException(400, "Expected: <FROM> <TO> <PROMOTION-PIECE> " +
+              "(promotion piece only applicable with promotion of pawn)");
     }
     return " ";
   }
@@ -323,8 +318,21 @@ public class ChessClient implements NotificationHandler {
     return "You resigned. Game over.";
   }
 
-  public String highlight(String... params) {
-    return "highlight";
+  public String highlight(String... params) throws ResponseException {
+
+    if (params.length == 1){
+      ChessPosition start = new ChessPosition(Character.
+              getNumericValue(params[0].charAt(1)),9 -
+              toNumber.get(params[0].charAt(0)));
+      if (currGameData.getBoard().getPiece(start) == null){
+        return "No piece found at selected position. Try another position.";
+      }
+      DrawBoard drawBoard = new DrawBoard(currGameData.getBoard());
+      drawBoard.printBoard(currTeamColor, currGameData, currGameData.validMoves(start));
+      return "Valid moves highlighted in yellow.";
+    }
+
+    throw new ResponseException(400, "Expected: <POSITION>");
   }
 
   public String redraw() {

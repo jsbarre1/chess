@@ -20,6 +20,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 @WebSocket
@@ -220,15 +221,27 @@ public class WSHandler {
     return true;
   }
 
+
+  private final Map<Integer, Character> toChar=Map.of(
+          1, 'h',
+          2, 'g',
+          3, 'f',
+          4, 'e',
+          5, 'd',
+          6, 'c',
+          7, 'b',
+          8, 'a'
+  );
+
   private void updateGameState(int gameId, ChessMove move, String currUsername, ChessGame.TeamColor opponentColor ) throws DataAccessException, IOException {
     ChessPiece movedPiece=currGame.game().getBoard().getPiece(move.getEndPosition());
     ChessPosition endPos=move.getEndPosition();
 
-    String moveDescription=String.format("%s has moved %s to %d,%d",
+    String moveDescription=String.format("%s has moved %s to %c%d",
             currUsername,
             movedPiece.getPieceType(),
-            endPos.getRow(),
-            endPos.getColumn());
+            toChar.get(endPos.getColumn()),
+            endPos.getRow());
 
     NotificationMessage n;
 
