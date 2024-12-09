@@ -11,7 +11,6 @@ import response.CreateGameResponse;
 import websocket.NotificationHandler;
 import websocket.WSClient;
 import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificaitonMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
@@ -122,10 +121,10 @@ public class  ChessClient implements NotificationHandler {
 
                 if(!Objects.equals(params[1], "black")){
                     currTeamColor = ChessGame.TeamColor.BLACK;
-                    ws.joinPlayer(currGameID, currentUser.authToken(), currentUser.username(), ChessGame.TeamColor.BLACK);
+                    ws.joinPlayer(currGameID, currentUser.authToken(), ChessGame.TeamColor.BLACK);
                 }else{
                     currTeamColor = ChessGame.TeamColor.WHITE;
-                    ws.joinPlayer(currGameID, currentUser.authToken(), currentUser.username(), ChessGame.TeamColor.WHITE);
+                    ws.joinPlayer(currGameID, currentUser.authToken(), ChessGame.TeamColor.WHITE);
 
                 }
             } catch (ResponseException e) {

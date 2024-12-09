@@ -10,6 +10,7 @@ import models.JoinGameObject;
 import models.ListGamesResult;
 import service.*;
 import spark.*;
+import websocket.WSHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,11 +18,14 @@ import java.util.Map;
 
 public class Server {
     private Services services;
+    UserDAO userDAO;
+    GameDAO gameDAO;
+    AuthDAO authDAO;
     public Server() {
         try {
-            AuthDAO authDAO = new SQLAuthDAO();
-            UserDAO userDAO = new SQLUserDAO();
-            GameDAO gameDAO = new SQLGameDAO();
+            this.authDAO = new SQLAuthDAO();
+            this.userDAO = new SQLUserDAO();
+            this.gameDAO = new SQLGameDAO();
             services = new Services(userDAO, authDAO, gameDAO);
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
@@ -32,6 +36,9 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws",  new WSHandler(userDAO, gameDAO, authDAO));
+
 
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::deleteDB);

@@ -18,16 +18,14 @@ public class UserGameCommand {
 
     private final Integer gameID;
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, String username) {
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
-        this.username = username;
     }
 
     public enum CommandType {
-        CONNECT_PLAYER,
-        CONNECT_OBSERVER,
+        CONNECT,
         MAKE_MOVE,
         LEAVE,
         RESIGN
