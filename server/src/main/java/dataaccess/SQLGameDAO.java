@@ -1,9 +1,11 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exceptions.ResponseException;
 import model.GameData;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -127,6 +129,27 @@ public class SQLGameDAO implements GameDAO{
         return new HashMap<>();
     }
 
+    @Override
+    public void setGame(Integer gameID, ChessGame game) throws DataAccessException {
+        Gson gson = new Gson();
+        String stringGame = gson.toJson(game);
+
+        String sql = "UPDATE games SET game = ? WHERE gameID = ?";
+        try (var conn = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.setString(1, stringGame);
+            preparedStatement.setInt(2, gameID);
+            int numUpdated = preparedStatement.executeUpdate();
+
+            if (numUpdated == 0) {
+                throw new DataAccessException("Failed to update game with ID " + gameID + ". Game not found.");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error updating game in the database: " + e.getMessage());
+        }
+    }
+
+
 
     private int executeUpdateGame(String gameStatement, Object... gameParams) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -158,6 +181,5 @@ public class SQLGameDAO implements GameDAO{
         var gameData = new Gson().fromJson(json, GameData.class);
         return gameData;
     }
-
 }
 

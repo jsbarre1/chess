@@ -1,7 +1,7 @@
 package websocket;
 
 
-import chess.ChessGame;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -12,10 +12,12 @@ import exceptions.ResponseException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.Connect;
+import websocket.commands.MakeMove;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 
@@ -27,6 +29,7 @@ public class WSHandler {
   private final ConnectionManager connections = new ConnectionManager();
   private final Gson gson = new Gson();
   private String currentUsername;
+  private ChessGame currGame;
 
   public WSHandler() {}
 
@@ -42,6 +45,7 @@ public class WSHandler {
       UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
       switch (userGameCommand.getCommandType()) {
         case CONNECT -> connect(session, new Gson().fromJson(message, Connect.class));
+        case MAKE_MOVE -> makeGameMove(session, new Gson().fromJson(message, MakeMove.class));
         case LEAVE -> handleLeave(session);
       }
     } catch (Exception e) {
@@ -112,6 +116,58 @@ public class WSHandler {
       System.err.println("Response error: " + e.getMessage());
       sendError(session, "Error: " + e.getMessage());
     }
+  }
+
+  private void makeGameMove(Session session, MakeMove moveCommand) throws Exception {
+
+    var authData = authDAO.getAuth(moveCommand.getAuthToken());
+    String currUsername = authData.username();
+    Connection playerConnection = new Connection(currUsername, session, moveCommand.getAuthToken());
+    ChessMove move = moveCommand.getMove();
+
+    validateMove(move);
+    var gameData = gameDAO.getGame(moveCommand.getGameID());
+    currGame =gameData.game();
+    try {
+      gameData.game().makeMove(move);
+      updateGameState(moveCommand.getGameID(), move, currUsername);
+
+    } catch (InvalidMoveException e) {
+      handleInvalidMove(playerConnection);
+    }
+  }
+
+  private void validateMove(ChessMove move) throws ResponseException {
+    ChessPiece piece = currGame.getBoard().getPiece(move.getStartPosition());
+    if (piece == null) {
+      throw new ResponseException(400, "Error: no piece at starting position");
+    }
+
+    currGame.setTeamTurn(piece.getTeamColor());
+  }
+
+  private void updateGameState(int gameId, ChessMove move, String playerName) throws DataAccessException, IOException {
+    ChessPiece movedPiece = currGame.getBoard().getPiece(move.getEndPosition());
+    ChessPosition endPos = move.getEndPosition();
+
+    String moveDescription = String.format("%s has moved %s to %d,%d",
+            playerName,
+            movedPiece.getPieceType(),
+            endPos.getRow(),
+            endPos.getColumn());
+
+    ServerMessage notification = new NotificationMessage(moveDescription);
+    ServerMessage loadMessage = new LoadGameMessage(currGame);
+
+    gameDAO.setGame(gameId, currGame);
+    connections.broadcast(currentUsername, loadMessage);
+    connections.broadcast(playerName, notification);
+  }
+
+  private void handleInvalidMove(Connection playerConnection) throws IOException {
+    String errorMsg = "It's not your turn, please wait for the other player.";
+    ServerMessage error = new NotificationMessage(errorMsg);
+    playerConnection.send(error);
   }
 
   private void handleLeave(Session session) {

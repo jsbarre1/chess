@@ -1,9 +1,11 @@
 package websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exceptions.ResponseException;
 import websocket.commands.Connect;
+import websocket.commands.MakeMove;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -67,6 +69,12 @@ public class WSClient extends Endpoint {
     } catch (IOException ex) {
       throw new ResponseException(500, "Failed to send join player command: " + ex.getMessage());
     }
+  }
+
+  public void makeMove(int gameID, String authToken, ChessMove move) throws ResponseException {
+    UserGameCommand makeMoveCommand = new MakeMove(authToken, gameID, move);
+    String message = new Gson().toJson(makeMoveCommand);
+    sendMessage(message);
   }
 
   public void sendMessage(String message) throws ResponseException {

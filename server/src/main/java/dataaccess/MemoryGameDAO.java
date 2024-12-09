@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -74,7 +75,14 @@ public class MemoryGameDAO implements GameDAO{
             gameList.put(newGame.gameID(), newGame);
             return new HashMap<>();
         }
-    };
+    }
+
+    @Override
+    public void setGame(Integer gameID, ChessGame game) throws DataAccessException {
+
+    }
+
+    ;
 
 
 }

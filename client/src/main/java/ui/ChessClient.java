@@ -1,6 +1,6 @@
 package ui;
 
-import chess.ChessGame;
+import chess.*;
 import exceptions.ResponseException;
 import model.AuthData;
 import model.GameData;
@@ -15,6 +15,7 @@ import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
@@ -265,9 +266,56 @@ public class  ChessClient implements NotificationHandler {
         activeGame = false;
         return "successfully left game";
     }
-    public String makeMove(String... params){
-        return "move";
+
+    private final Map<Character, Integer> toNumber= Map.of(
+            'a', 1,
+            'b', 2,
+            'c', 3,
+            'd', 4,
+            'e', 5,
+            'f', 6,
+            'g', 7,
+            'h', 8
+    );
+
+
+    public ChessPiece.PieceType getPieceType(String piece) {
+        return switch (piece.toUpperCase()) {
+            case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+            case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+            case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+            case "ROOK" -> ChessPiece.PieceType.ROOK;
+            case "PAWN" -> ChessPiece.PieceType.PAWN;
+            default -> null;
+        };
     }
+
+    private String makeMove(String... params) throws InvalidMoveException, ResponseException {
+        if (params.length >= 2) {
+            if (!activeGame){
+                return "You are observing not playing";
+            }
+            if (currGameData.game().getTeamTurn() != currTeamColor){
+                return "Not your turn";
+            }
+            ChessPosition start = new ChessPosition(Character.getNumericValue(params[0].charAt(1)),
+                    toNumber.get((params[0].charAt(0))));
+            ChessPosition end = new ChessPosition(Character.getNumericValue(params[1].charAt(1)),
+                    toNumber.get(params[1].charAt(0)));
+
+            ChessPiece.PieceType promotionPiece = null;
+            if (params.length >= 3) {
+                promotionPiece = getPieceType(params[2]);
+            }
+            ChessMove move = new ChessMove(start, end, promotionPiece);
+            ws.makeMove(currGameID, currentUser.authToken(), move);
+        }
+        else{
+            throw new ResponseException(400, "Expected: <FROM> <TO> <PROMOTION-PIECE> (promotion piece only applicable with promotion of pawn)");
+        }
+        return " ";
+    }
+
     public String resign(){
         return "resign";
     }
