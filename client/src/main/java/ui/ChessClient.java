@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ChessClient {
+public class  ChessClient {
         private String visitorName = null;
         private final ServerFacade server;
         private State state = State.SIGNEDOUT;
@@ -104,7 +104,7 @@ public class ChessClient {
             }
 
             DrawBoard drawBoard = new DrawBoard(gameData.game().getBoard());
-            drawBoard.printBoard();
+            drawBoard.printBoards();
 
             activeGame = true;
 
@@ -135,7 +135,7 @@ public class ChessClient {
             GameData gameData = games.get(parsedInt-1);
 
             DrawBoard drawBoard = new DrawBoard(gameData.game().getBoard());
-            drawBoard.printBoard();
+            drawBoard.printBoards();
             return "observing game: " + parsedInt;
         }
         throw new ResponseException(400, "Wrong format for join... Expected: <ID> [WHITE|BLACK] ");
@@ -222,22 +222,30 @@ public class ChessClient {
     }
 
     public String helpGameplay(){
-        return "";
+        return """
+                redraw - redraws the board
+                mm <> <> - makes a move from one point to the other
+                resign - forfeit the game
+                highlight - shows the legal moves
+                leave - leave the game
+                help - with possible commands
+                """;
     }
     public String leave(){
         return "Leaving game";
     }
     public String makeMove(String... params){
-        return "";
+        return "move";
     }
     public String resign(){
-        return "";
+        return "resign";
     }
     public String highlight(String... params){
-        return "";
+        return "highlight";
     }
     public String redraw(){
-        return "";
+
+        return "redraw";
     }
 
 }

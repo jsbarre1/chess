@@ -1,11 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -19,68 +18,90 @@ public class DrawBoard {
         this.board = board;
     }
 
-    public void printBoard() {
-        out.print(ERASE_SCREEN);
-        out.print(SET_BG_COLOR_LIGHT_GREY);
-        out.print(SET_TEXT_BOLD);
+    public void printBoards() {
+
         for (int i = 1; i <= 2; i++) {
-            out.print(SET_TEXT_COLOR_YELLOW);
             if(i == 1){
-                out.print("    h  g  f  e  d  c  b  a    ");
-                out.print(RESET_BG_COLOR);
-                out.print("\n");
-                for (int row = 1; row <= 8; row++) {
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                    out.print(SET_TEXT_COLOR_YELLOW);
-                    out.print(" " + row+ " ");
-                    for (int col = 1; col <= 8; col++) {
-                        checkSquareColor(row,col);
-                        printPiece(row,col);
-                    }
-                    out.print(SET_TEXT_COLOR_YELLOW);
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                    out.print(" " + row + " ");
-                    out.print(RESET_BG_COLOR);
-                    out.print("\n");
-                }
-                out.print(SET_TEXT_COLOR_YELLOW);
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                out.print("    h  g  f  e  d  c  b  a    ");
-                out.print(RESET_BG_COLOR);
-                out.print("\n");
-
-
+               printWhite();
             }else{
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                out.print("    a  b  c  d  e  f  g  h    ");
-                out.print(RESET_BG_COLOR);
-                out.print("\n");
-                for (int row = 8; row >= 1; row--) {
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                    out.print(SET_TEXT_COLOR_YELLOW);
-                    out.print(" " + row+ " ");
-                    for (int col = 8; col >= 1; col--) {
-                        checkSquareColor(row,col);
-
-                        printPiece(row,col);
-                    }
-                    out.print(SET_TEXT_COLOR_YELLOW);
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                    out.print(" " + row+ " ");
-                    out.print(RESET_BG_COLOR);
-                    out.print("\n");
-                }
-                out.print(SET_TEXT_COLOR_YELLOW);
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                out.print("    a  b  c  d  e  f  g  h    ");
-                out.print(RESET_BG_COLOR);
-
+               printBlack();
             }
-            out.print("\n");
-
         }
         out.print(RESET_BG_COLOR);
         out.print(RESET_TEXT_COLOR);
+    }
+
+    public void printBoard(boolean isWhite, ChessGame gameData, Collection<ChessMove> validMoves){
+        if(isWhite){
+            printWhite();
+        }else{
+            printBlack();
+        }
+        out.print(RESET_BG_COLOR);
+        out.print(RESET_TEXT_COLOR);
+    }
+
+    private void printWhite(){
+        out.print(ERASE_SCREEN);
+        out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print(SET_TEXT_BOLD);
+        out.print(SET_TEXT_COLOR_YELLOW);
+
+        out.print("    h  g  f  e  d  c  b  a    ");
+        out.print(RESET_BG_COLOR);
+        out.print("\n");
+        for (int row = 1; row <= 8; row++) {
+            out.print(SET_BG_COLOR_LIGHT_GREY);
+            out.print(SET_TEXT_COLOR_YELLOW);
+            out.print(" " + row+ " ");
+            for (int col = 1; col <= 8; col++) {
+                checkSquareColor(row,col);
+                printPiece(row,col);
+            }
+            out.print(SET_TEXT_COLOR_YELLOW);
+            out.print(SET_BG_COLOR_LIGHT_GREY);
+            out.print(" " + row + " ");
+            out.print(RESET_BG_COLOR);
+            out.print("\n");
+        }
+        out.print(SET_TEXT_COLOR_YELLOW);
+        out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print("    h  g  f  e  d  c  b  a    ");
+        out.print(RESET_BG_COLOR);
+        out.print("\n");
+        out.print("\n");
+
+    }
+
+    private void printBlack(){
+        out.print(ERASE_SCREEN);
+        out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print(SET_TEXT_BOLD);
+        out.print(SET_TEXT_COLOR_YELLOW);
+        out.print("    a  b  c  d  e  f  g  h    ");
+        out.print(RESET_BG_COLOR);
+        out.print("\n");
+        for (int row = 8; row >= 1; row--) {
+            out.print(SET_BG_COLOR_LIGHT_GREY);
+            out.print(SET_TEXT_COLOR_YELLOW);
+            out.print(" " + row+ " ");
+            for (int col = 8; col >= 1; col--) {
+                checkSquareColor(row,col);
+
+                printPiece(row,col);
+            }
+            out.print(SET_TEXT_COLOR_YELLOW);
+            out.print(SET_BG_COLOR_LIGHT_GREY);
+            out.print(" " + row+ " ");
+            out.print(RESET_BG_COLOR);
+            out.print("\n");
+        }
+        out.print(SET_TEXT_COLOR_YELLOW);
+        out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print("    a  b  c  d  e  f  g  h    ");
+        out.print(RESET_BG_COLOR);
+        out.print("\n");
+
     }
 
     private void checkSquareColor(int row, int col){
@@ -132,5 +153,4 @@ public class DrawBoard {
             out.print(EMPTY);
         }
     }
-
 }
