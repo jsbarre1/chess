@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import exceptions.ResponseException;
 import model.AuthData;
 import model.GameData;
@@ -17,6 +18,8 @@ public class  ChessClient {
         private final ServerFacade server;
         private State state = State.SIGNEDOUT;
         private Boolean activeGame = false;
+        private GameData currGameData;
+        private ChessGame.TeamColor currTeamColor;
 
     public ChessClient(String serverUrl) {
             server = new ServerFacade(serverUrl);
@@ -95,10 +98,16 @@ public class  ChessClient {
             }
 
             GameData gameData = games.get(parsedInt-1);
+            currGameData= gameData;
 
             try{
                 JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(), gameData.gameID());
                 server.joinGame(request);
+                if(!Objects.equals(params[1], "black")){
+                    currTeamColor = ChessGame.TeamColor.BLACK;
+                }else{
+                    currTeamColor = ChessGame.TeamColor.WHITE;
+                }
             } catch (ResponseException e) {
                 return "That color is full for that game";
             }
@@ -232,7 +241,8 @@ public class  ChessClient {
                 """;
     }
     public String leave(){
-        return "Leaving game";
+        activeGame = false;
+        return "successfully left game";
     }
     public String makeMove(String... params){
         return "move";
@@ -244,8 +254,9 @@ public class  ChessClient {
         return "highlight";
     }
     public String redraw(){
-
-        return "redraw";
+        DrawBoard drawBoard = new DrawBoard(currGameData.game().getBoard());
+        drawBoard.printBoard(currTeamColor, currGameData.game(), null);
+        return "current board drawn";
     }
 
 }
