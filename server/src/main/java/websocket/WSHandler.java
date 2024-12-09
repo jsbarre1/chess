@@ -24,17 +24,13 @@ import java.util.Objects;
 
 @WebSocket
 public class WSHandler {
-  private GameDAO gameDAO;
-  private AuthDAO authDAO;
+  private final GameDAO gameDAO;
+  private final AuthDAO authDAO;
   private final ConnectionManager connections=new ConnectionManager();
   private final Gson gson=new Gson();
-  private String currentUsername;
   private GameData currGame;
 
-  public WSHandler() {
-  }
-
-  public WSHandler(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
+  public WSHandler(GameDAO gameDAO, AuthDAO authDAO) {
     this.authDAO=authDAO;
     this.gameDAO=gameDAO;
   }
@@ -94,7 +90,7 @@ public class WSHandler {
       currGame.game().setGameOver(true);
       gameDAO.setGame(currGame.gameID(), currGame);
       NotificationMessage notification = new NotificationMessage("%s has forfeited, %s wins!".formatted(auth.username(), opUsername));
-      connections.broadcast("", notification);
+      connections.broadcast("", notification, currGame.gameID());
     } catch (DataAccessException e) {
       sendError(session, "Error: Not authorized");
     } catch (ResponseException e) {
@@ -131,7 +127,7 @@ public class WSHandler {
 
       System.out.println("Creating notification for user: " + authData.username());
 
-      currentUsername=authData.username();
+      String currentUsername=authData.username();
       ChessGame chessGame=gameData.game();
       ChessGame.TeamColor teamColor=connect.getColor();
 
@@ -149,10 +145,10 @@ public class WSHandler {
 
       System.out.println("Sending notification: " + gson.toJson(notification));
 
-      connections.add(currentUsername, session, authToken);
+      connections.add(currentUsername, session, authToken, gameID);
 
       try {
-        connections.broadcast(currentUsername, notification);
+        connections.broadcast(currentUsername, notification, gameID);
       } catch (IOException e) {
         System.err.println("Failed to broadcast notification: " + e.getMessage());
       }
@@ -190,16 +186,12 @@ public class WSHandler {
     if (!validateMove(moveCommand, session, currColor)) {
       return;
     }
-    try {
       gameData.game().makeMove(move);
       updateGameState(moveCommand.getGameID(), move, currUsername, opponentColor);
 
-    } catch (InvalidMoveException e) {
-      handleInvalidMove(playerConnection);
-    }
   }
 
-  private Boolean validateMove(MakeMove moveCommand, Session session, ChessGame.TeamColor currColor) throws ResponseException, IOException {
+  private Boolean validateMove(MakeMove moveCommand, Session session, ChessGame.TeamColor currColor) throws IOException {
     ChessPiece piece=currGame.game().getBoard().getPiece(moveCommand.getMove().getStartPosition());
     if (currGame.game().getBoard().getPiece(moveCommand.getMove().getStartPosition()).getTeamColor() != currColor) {
       sendError(session, "You can't move other team's pieces");
@@ -256,15 +248,10 @@ public class WSHandler {
     ServerMessage loadMessage=new LoadGameMessage(currGame.game());
 
     gameDAO.setGame(gameId, currGame);
-    connections.broadcast("", loadMessage);
-    connections.broadcast(currUsername, notification);
+    connections.broadcast("", loadMessage, gameId);
+    connections.broadcast(currUsername, notification, gameId);
   }
 
-  private void handleInvalidMove(Connection playerConnection) throws IOException {
-    String errorMsg="It's not your turn, please wait for the other player.";
-    ServerMessage error=new ErrorMessage(errorMsg);
-    playerConnection.send(error);
-  }
 
   private void handleLeave(Session session, Leave command) throws IOException {
     try {
@@ -281,7 +268,7 @@ public class WSHandler {
       }
 
       NotificationMessage notification = new NotificationMessage(authData.username() + " has left the game");
-      connections.broadcast(authData.username(), notification);
+      connections.broadcast(authData.username(), notification, gameData.gameID());
 
       if(Objects.equals(gameData.whiteUsername(), authData.username())){
         gameDAO.removePlayer(gameData, "WHITE", null);

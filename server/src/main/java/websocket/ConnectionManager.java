@@ -8,42 +8,54 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-  public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-  public void add(String userName, Session session, String authToken) {
-    var connection = new Connection(userName, session, authToken);
-    connections.put(userName, connection);
+  private final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
+
+  private final ConcurrentHashMap<Integer, ArrayList<String>> gameConnections = new ConcurrentHashMap<>();
+
+  public void add(String username, Session session, String authToken, int gameId) {
+    var connection = new Connection(username, session, authToken);
+    connections.put(username, connection);
+
+    gameConnections.computeIfAbsent(gameId, k -> new ArrayList<>()).add(username);
   }
-
 
   public void remove(String username) {
     connections.remove(username);
+    gameConnections.values().forEach(users -> users.remove(username));
   }
 
-  public void broadcast(String username, ServerMessage notification) throws IOException {
+  public void broadcast(String username, ServerMessage notification, int gameId) throws IOException {
     if (notification == null) {
       throw new IOException("Cannot broadcast null message");
     }
 
-    var removeList=new ArrayList<Connection>();
-    for (var c : connections.values()) {
-      try {
-        if (c.session.isOpen()) {
-          if (!c.username.equals(username)) {
-            c.send(notification);
+    var removeList = new ArrayList<Connection>();
+    var gameUsers = gameConnections.get(gameId);
+
+    if (gameUsers != null) {
+      for (String gameUser : gameUsers) {
+        var connection = connections.get(gameUser);
+        if (connection != null) {
+          try {
+            if (connection.session.isOpen()) {
+              if (!connection.username.equals(username)) {
+                connection.send(notification);
+              }
+            } else {
+              removeList.add(connection);
+            }
+          } catch (Exception e) {
+            removeList.add(connection);
+            System.err.println("Error broadcasting to user: " + connection.username + " - " + e.getMessage());
           }
-        } else {
-          removeList.add(c);
         }
-      } catch (Exception e) {
-        removeList.add(c);
-        System.err.println("Error broadcasting to user: " + c.username + " - " + e.getMessage());
       }
     }
 
-    // Clean up closed connections
     for (var c : removeList) {
-      connections.remove(c.username);
+      remove(c.username);
     }
   }
+
 }

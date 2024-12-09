@@ -18,25 +18,11 @@ public class DrawBoard {
         this.board = board;
     }
 
-    public void printBoards() {
-
-        for (int i = 1; i <= 2; i++) {
-            if(i == 1){
-               printWhite();
-                out.print("\n");
-            }else{
-               printBlack();
-            }
-        }
-        out.print(RESET_BG_COLOR);
-        out.print(RESET_TEXT_COLOR);
-    }
-
     public void printBoard(ChessGame.TeamColor teamColor, ChessGame chessGame, Collection<ChessMove> validMoves){
-        if(teamColor == ChessGame.TeamColor.WHITE){
-            printWhite();
-        }else{
+        if(teamColor == ChessGame.TeamColor.BLACK){
             printBlack();
+        }else {
+            printWhite();
         }
         out.print(RESET_BG_COLOR);
         out.print(RESET_TEXT_COLOR);

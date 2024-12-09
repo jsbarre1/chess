@@ -21,6 +21,7 @@ public class Server {
     UserDAO userDAO;
     GameDAO gameDAO;
     AuthDAO authDAO;
+
     public Server() {
         try {
             this.authDAO = new SQLAuthDAO();
@@ -37,7 +38,7 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        Spark.webSocket("/ws",  new WSHandler(userDAO, gameDAO, authDAO));
+        Spark.webSocket("/ws",  new WSHandler(gameDAO, authDAO));
 
         Spark.init();
 

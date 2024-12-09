@@ -166,7 +166,7 @@ public class ChessClient implements NotificationHandler {
       currGameID=gameData.gameID();
       activeGame=true;
       DrawBoard drawBoard=new DrawBoard(gameData.game().getBoard());
-      drawBoard.printBoard(ChessGame.TeamColor.WHITE, gameData.game(), null);
+
       ws=new WSClient(serverUrl, this);
       ws.joinObserver(currGameID, currentUser.authToken(), null);
       return "observing game: " + parsedInt;
@@ -299,9 +299,6 @@ public class ChessClient implements NotificationHandler {
     if (params.length >= 2) {
       if (!activeGame) {
         return "You are observing not playing";
-      }
-      if (currGameData.getTeamTurn() != currTeamColor) {
-        return "Not your turn";
       }
       ChessPosition start=new ChessPosition(Character.getNumericValue(params[0].charAt(1)),
               toNumber.get((params[0].charAt(0))));
