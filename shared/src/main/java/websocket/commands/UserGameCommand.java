@@ -10,9 +10,9 @@ import java.util.Objects;
  */
 public class UserGameCommand {
 
-    private final CommandType commandType;
+    protected CommandType commandType;
 
-    private final String authToken;
+    protected String authToken;
 
     private final Integer gameID;
 
@@ -23,7 +23,8 @@ public class UserGameCommand {
     }
 
     public enum CommandType {
-        CONNECT,
+        CONNECT_PLAYER,
+        CONNECT_OBSERVER,
         MAKE_MOVE,
         LEAVE,
         RESIGN

@@ -21,8 +21,15 @@ public class ServerMessage {
         this.serverMessageType = type;
     }
 
+    public ServerMessage() {}
+
+
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
+    }
+
+    public void setMessageType (ServerMessageType type){
+        this.serverMessageType = type;
     }
 
     @Override

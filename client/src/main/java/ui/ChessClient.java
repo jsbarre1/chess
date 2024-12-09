@@ -8,6 +8,7 @@ import model.UserData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import response.CreateGameResponse;
+import websocket.WSClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,8 @@ public class  ChessClient {
         private Boolean activeGame = false;
         private GameData currGameData;
         private ChessGame.TeamColor currTeamColor;
+        private WSClient ws;
+
 
     public ChessClient(String serverUrl) {
             server = new ServerFacade(serverUrl);
