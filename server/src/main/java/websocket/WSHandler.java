@@ -233,7 +233,10 @@ public class WSHandler {
           8, 'a'
   );
 
-  private void updateGameState(int gameId, ChessMove move, String currUsername, ChessGame.TeamColor opponentColor ) throws DataAccessException, IOException {
+  private void updateGameState(int gameId, ChessMove move,
+                               String currUsername, ChessGame.TeamColor
+                                       opponentColor ) throws
+          DataAccessException, IOException {
     ChessPiece movedPiece=currGame.game().getBoard().getPiece(move.getEndPosition());
     ChessPosition endPos=move.getEndPosition();
 

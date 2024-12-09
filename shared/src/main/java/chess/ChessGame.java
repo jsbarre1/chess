@@ -18,8 +18,6 @@ public class ChessGame {
     private ChessGameFunctions chessGameFunction;
     private Boolean isGameOver = false;
 
-
-
     public ChessGame() {
         teamTurnColor = TeamColor.WHITE;
         liveBoard = new ChessBoard();
@@ -27,8 +25,6 @@ public class ChessGame {
         completedMoves = new Stack<>();
         this.chessGameFunction = new ChessGameFunctions();
     }
-
-
     public void setGameOver(boolean gameOver) {
         this.isGameOver = gameOver;
     }

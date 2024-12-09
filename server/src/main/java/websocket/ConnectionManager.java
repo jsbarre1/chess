@@ -32,29 +32,33 @@ public class ConnectionManager {
 
     var removeList = new ArrayList<Connection>();
     var gameUsers = gameConnections.get(gameId);
+    if (gameUsers == null) {
+      return;
+    }
 
-    if (gameUsers != null) {
-      for (String gameUser : gameUsers) {
-        var connection = connections.get(gameUser);
-        if (connection != null) {
-          try {
-            if (connection.session.isOpen()) {
-              if (!connection.username.equals(username)) {
-                connection.send(notification);
-              }
-            } else {
-              removeList.add(connection);
-            }
-          } catch (Exception e) {
-            removeList.add(connection);
-            System.err.println("Error broadcasting to user: " + connection.username + " - " + e.getMessage());
-          }
+    for (String gameUser : gameUsers) {
+      var connection = connections.get(gameUser);
+      if (connection == null) {
+        continue;
+      }
+
+      if (!connection.session.isOpen()) {
+        removeList.add(connection);
+        continue;
+      }
+
+      try {
+        if (!connection.username.equals(username)) {
+          connection.send(notification);
         }
+      } catch (Exception e) {
+        removeList.add(connection);
+        System.err.println("Error broadcasting to user: " + connection.username + " - " + e.getMessage());
       }
     }
 
     for (var c : removeList) {
-      remove(c.username);
+      connections.remove(c.username);
     }
   }
 

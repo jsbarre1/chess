@@ -28,12 +28,6 @@ public class ServerFacade {
         authToken = null;
     }
 
-    public void clearData() throws ResponseException{
-        var path = "/db";
-        this.makeRequest("DELETE", path, null, null);
-    }
-
-
     public AuthData loginUser(UserData userData) throws ResponseException{
         var path = "/session";
         AuthData response = this.makeRequest("POST", path, userData, AuthData.class);
