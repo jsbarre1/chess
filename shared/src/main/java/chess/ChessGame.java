@@ -16,6 +16,9 @@ public class ChessGame {
     private ChessBoard liveBoard;
     private Stack<ChessMove> completedMoves;
     private ChessGameFunctions chessGameFunction;
+    private Boolean isGameOver = false;
+
+
 
     public ChessGame() {
         teamTurnColor = TeamColor.WHITE;
@@ -23,6 +26,15 @@ public class ChessGame {
         liveBoard.resetBoard();
         completedMoves = new Stack<>();
         this.chessGameFunction = new ChessGameFunctions();
+    }
+
+
+    public void setGameOver(boolean gameOver) {
+        this.isGameOver = gameOver;
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
     }
     /**
      * @return Which team's turn it is

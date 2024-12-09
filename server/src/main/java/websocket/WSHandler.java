@@ -9,11 +9,13 @@ import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
 import exceptions.ResponseException;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.Connect;
 import websocket.commands.MakeMove;
+import websocket.commands.Resign;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -47,6 +49,7 @@ public class WSHandler {
       switch (userGameCommand.getCommandType()) {
         case CONNECT -> connect(session, new Gson().fromJson(message, Connect.class));
         case MAKE_MOVE -> makeGameMove(session, new Gson().fromJson(message, MakeMove.class));
+        case RESIGN -> resign(session, new Gson().fromJson(message, Resign.class));
         case LEAVE -> handleLeave(session);
       }
     } catch (Exception e) {
@@ -59,6 +62,51 @@ public class WSHandler {
     }
   }
 
+  private void resign(Session session, Resign resignCommand) throws IOException {
+    try {
+      AuthData auth = authDAO.getAuth(resignCommand.getAuthToken());
+      currGame =gameDAO.getGame(resignCommand.getGameID());
+
+
+      ChessGame.TeamColor playerColor=null;
+
+
+      if (Objects.equals(currGame.whiteUsername(), auth.username())) {
+        playerColor=ChessGame.TeamColor.WHITE;
+      } else if (Objects.equals(currGame.blackUsername(), auth.username())) {
+        playerColor=ChessGame.TeamColor.BLACK;
+      }
+
+      String opUsername;
+      if (playerColor == ChessGame.TeamColor.WHITE) {
+        opUsername = currGame.blackUsername();
+      } else {
+        opUsername = currGame.whiteUsername();
+      }
+
+      if (currGame.game().isGameOver()) {
+        sendError(session, "Error: You cannot resign, the game is over already");
+        return;
+      }
+
+      if (playerColor == null) {
+        sendError(session, "Error: You are observing this game");
+        return;
+      }
+
+      currGame.game().setGameOver(true);
+      gameDAO.setGame(currGame.gameID(), currGame);
+      NotificationMessage notification = new NotificationMessage("%s has forfeited, %s wins!".formatted(auth.username(), opUsername));
+      connections.broadcast("", notification);
+    } catch (DataAccessException e) {
+      sendError(session, "Error: Not authorized");
+    } catch (ResponseException e) {
+      sendError(session, "Error: invalid game");
+    }
+
+  }
+
+
   private void connect(Session session, Connect connect) throws IOException {
     try {
       if (connect == null) {
@@ -70,6 +118,7 @@ public class WSHandler {
 
       int gameID=connect.getGameID();
       var gameData=gameDAO.getGame(gameID);
+      currGame = gameData;
 
       if (gameData == null) {
         sendError(session, "Error: game not found");
@@ -129,12 +178,16 @@ public class WSHandler {
 
     var gameData=gameDAO.getGame(moveCommand.getGameID());
     currGame=gameData;
-    ChessGame.TeamColor currColor = null;
+    ChessGame.TeamColor currColor=null;
+    ChessGame.TeamColor opponentColor=null;
 
-    if(Objects.equals(gameData.whiteUsername(), currUsername)){
-      currColor = ChessGame.TeamColor.WHITE;
+
+    if (Objects.equals(gameData.whiteUsername(), currUsername)) {
+      currColor=ChessGame.TeamColor.WHITE;
+      opponentColor=ChessGame.TeamColor.BLACK;
     } else if (Objects.equals(gameData.blackUsername(), currUsername)) {
-      currColor = ChessGame.TeamColor.BLACK;
+      currColor=ChessGame.TeamColor.BLACK;
+      opponentColor=ChessGame.TeamColor.WHITE;
     }
 
     if (!validateMove(moveCommand, session, currColor)) {
@@ -142,7 +195,7 @@ public class WSHandler {
     }
     try {
       gameData.game().makeMove(move);
-      updateGameState(moveCommand.getGameID(), move, currUsername);
+      updateGameState(moveCommand.getGameID(), move, currUsername, opponentColor);
 
     } catch (InvalidMoveException e) {
       handleInvalidMove(playerConnection);
@@ -169,26 +222,45 @@ public class WSHandler {
       sendError(session, "You are only an observer");
       return false;
     }
+
+    if (currGame.game().isGameOver()) {
+      sendError(session, "Game Over. No moves allowed");
+      return false;
+    }
     currGame.game().setTeamTurn(piece.getTeamColor());
     return true;
   }
 
-  private void updateGameState(int gameId, ChessMove move, String playerName) throws DataAccessException, IOException {
+  private void updateGameState(int gameId, ChessMove move, String currUsername, ChessGame.TeamColor opponentColor ) throws DataAccessException, IOException {
     ChessPiece movedPiece=currGame.game().getBoard().getPiece(move.getEndPosition());
     ChessPosition endPos=move.getEndPosition();
 
     String moveDescription=String.format("%s has moved %s to %d,%d",
-            playerName,
+            currUsername,
             movedPiece.getPieceType(),
             endPos.getRow(),
             endPos.getColumn());
 
-    ServerMessage notification=new NotificationMessage(moveDescription);
+    NotificationMessage n;
+
+    if (currGame.game().isInCheckmate(opponentColor)) {
+      n = new NotificationMessage("Checkmate! %s wins!".formatted(currUsername));
+      currGame.game().setGameOver(true);
+    } else if (currGame.game().isInStalemate(opponentColor)) {
+      n = new NotificationMessage("Stalemate caused by %s's move! It's a tie!".formatted(currUsername));
+      currGame.game().setGameOver(true);
+    } else if (currGame.game().isInCheck(opponentColor)) {
+      n = new NotificationMessage("%s made a move. %s is now in check!".formatted(currUsername, opponentColor));
+    } else {
+      n = new NotificationMessage(moveDescription);
+    }
+
+    ServerMessage notification= n;
     ServerMessage loadMessage=new LoadGameMessage(currGame.game());
 
     gameDAO.setGame(gameId, currGame);
     connections.broadcast("", loadMessage);
-    connections.broadcast(playerName, notification);
+    connections.broadcast(currUsername, notification);
   }
 
   private void handleInvalidMove(Connection playerConnection) throws IOException {

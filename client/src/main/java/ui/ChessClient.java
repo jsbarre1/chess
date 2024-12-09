@@ -135,8 +135,9 @@ public class ChessClient implements NotificationHandler {
 
       activeGame=true;
 
+      System.out.println(" ");
       DrawBoard drawBoard=new DrawBoard(gameData.game().getBoard());
-      drawBoard.printBoard(currTeamColor, gameData.game(), null);
+      //drawBoard.printBoard(currTeamColor, gameData.game(), null);
 
       return "successfully joined game as " + currTeamColor;
     }
@@ -318,8 +319,10 @@ public class ChessClient implements NotificationHandler {
     return " ";
   }
 
-  public String resign() {
-    return "resign";
+  public String resign() throws ResponseException {
+
+    ws.resign(currGameID, currentUser.authToken());
+    return "You resigned. Game over.";
   }
 
   public String highlight(String... params) {
@@ -350,6 +353,7 @@ public class ChessClient implements NotificationHandler {
   public void updateGame(LoadGameMessage loadGameMessage) {
     currGameData=loadGameMessage.getGame();
     DrawBoard drawBoard=new DrawBoard(currGameData.getBoard());
+    System.out.println(" ");
     drawBoard.printBoard(currTeamColor, currGameData, null);
 
   }
