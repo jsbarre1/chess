@@ -198,6 +198,7 @@ public class  ChessClient implements NotificationHandler {
                 }
                 state = State.SIGNEDIN;
                 visitorName = authData.username();
+                currentUser = authData;
                 return String.format("You signed in as %s.", visitorName);
             }
             throw new ResponseException(400, "Wrong format for login... Expected: <USERNAME> <PASSWORD>");

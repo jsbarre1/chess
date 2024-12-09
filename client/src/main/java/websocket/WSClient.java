@@ -7,7 +7,7 @@ import websocket.commands.Connect;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificaitonMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -38,7 +38,7 @@ public class WSClient extends Endpoint {
           ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
           switch(serverMessage.getServerMessageType()) {
             case NOTIFICATION -> {
-              NotificaitonMessage notification = new Gson().fromJson(message, NotificaitonMessage.class);
+              NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
               notificationHandler.notify(notification);
             }
             case LOAD_GAME -> {

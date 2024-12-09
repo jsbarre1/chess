@@ -39,6 +39,7 @@ public class Server {
 
         Spark.webSocket("/ws",  new WSHandler(userDAO, gameDAO, authDAO));
 
+        Spark.init();
 
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::deleteDB);

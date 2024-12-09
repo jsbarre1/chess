@@ -10,29 +10,25 @@ import dataaccess.UserDAO;
 
 import exceptions.ResponseException;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.Connect;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificaitonMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.NotificationMessage;
 
 import java.io.IOException;
 
-
 @WebSocket
 public class WSHandler {
-
   private UserDAO userDAO;
   private GameDAO gameDAO;
   private AuthDAO authDAO;
-
-
   private final ConnectionManager connections = new ConnectionManager();
+  private final Gson gson = new Gson();
+  private String currentUsername;
 
-  public WSHandler(){}
+  public WSHandler() {}
 
   public WSHandler(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
     this.authDAO = authDAO;
@@ -41,48 +37,69 @@ public class WSHandler {
   }
 
   @OnWebSocketMessage
-  public void onMessage(Session session, String message) throws IOException, DataAccessException, ResponseException {
-    UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
-    switch (userGameCommand.getCommandType()) {
-      case CONNECT -> connect(session, message);
-      case LEAVE -> {
-        return;
+  public void onMessage(Session session, String message) {
+    try {
+      UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
+      switch (userGameCommand.getCommandType()) {
+        case CONNECT -> connect(session, message);
+        case LEAVE -> handleLeave(session);
+      }
+    } catch (Exception e) {
+      try {
+        ErrorMessage error = new ErrorMessage("Error: " + e.getMessage());
+        session.getRemote().sendString(gson.toJson(error));
+      } catch (IOException ex) {
+        System.err.println("Failed to send error message: " + ex.getMessage());
       }
     }
   }
 
-  private void connect(Session session, String message) throws IOException, ResponseException, DataAccessException {
-      Connect connect = new Gson().fromJson(message, Connect.class);
+  private void connect(Session session, String message) throws IOException {
+    try {
+      Connect connect = gson.fromJson(message, Connect.class);
 
       int gameID = connect.getGameID();
       var gameData = gameDAO.getGame(gameID);
       if (gameData == null) {
-        ErrorMessage invalidGame = new ErrorMessage("Error: game not found");
-        session.getRemote().sendString(new Gson().toJson(invalidGame));
+        sendError(session, "Error: game not found");
         return;
       }
 
       String authToken = connect.getAuthToken();
-
       var authData = authDAO.getAuth(authToken);
       if (authData == null) {
-        ErrorMessage notAuthorized = new ErrorMessage("Error: unauthorized");
-        session.getRemote().sendString(new Gson().toJson(notAuthorized));
+        sendError(session, "Error: unauthorized");
         return;
       }
 
-      String username = authData.username();
+      currentUsername= authData.username();
       ChessGame chessGame = gameData.game();
       ChessGame.TeamColor teamColor = connect.getColor();
 
-      session.getRemote().sendString(new Gson().toJson(new LoadGameMessage(chessGame)));
+      // Send game state
+      LoadGameMessage loadGameMessage = new LoadGameMessage(chessGame);
+      session.getRemote().sendString(gson.toJson(loadGameMessage));
 
+      // Send notification
       String teamColorStr = (teamColor != null) ? " as " + teamColor.toString() : " as an observer";
-      ServerMessage serverMessage = new NotificaitonMessage(username + " joined the game" + teamColorStr);
+      NotificationMessage notification= new NotificationMessage(currentUsername + " joined the game" + teamColorStr);
 
-      connections.add(username, session, authToken);
-      connections.broadcast(username, serverMessage);
+      connections.add(currentUsername, session, authToken);
+      connections.broadcast(currentUsername, notification);
 
+    } catch (DataAccessException e) {
+      sendError(session, "Error: database access failed");
+    } catch (ResponseException e) {
+      sendError(session, "Error: " + e.getMessage());
+    }
+  }
+
+  private void handleLeave(Session session) {
+    connections.remove(currentUsername);
+  }
+
+  private void sendError(Session session, String message) throws IOException {
+    ErrorMessage error = new ErrorMessage(message);
+    session.getRemote().sendString(gson.toJson(error));
   }
 }
-
