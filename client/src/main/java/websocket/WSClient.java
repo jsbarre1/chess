@@ -71,6 +71,16 @@ public class WSClient extends Endpoint {
     }
   }
 
+  public void joinObserver(int gameID, String authToken, ChessGame.TeamColor teamColor) throws ResponseException {
+    try {
+      UserGameCommand joinObserverCommand = new Connect(authToken, gameID, teamColor);
+      this.session.getBasicRemote().sendText(new Gson().toJson(joinObserverCommand));
+    } catch (IOException ex) {
+      throw new ResponseException(500, "Failed to send join observer command: " + ex.getMessage());
+    }
+  }
+
+
   public void makeMove(int gameID, String authToken, ChessMove move) throws ResponseException {
     UserGameCommand makeMoveCommand = new MakeMove(authToken, gameID, move);
     String message = new Gson().toJson(makeMoveCommand);

@@ -78,7 +78,7 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void setGame(Integer gameID, ChessGame game) throws DataAccessException {
+    public void setGame(Integer gameID, GameData game) throws DataAccessException {
 
     }
 

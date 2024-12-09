@@ -9,6 +9,7 @@ import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
 import exceptions.ResponseException;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.Connect;
@@ -20,29 +21,29 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @WebSocket
 public class WSHandler {
-  private UserDAO userDAO;
   private GameDAO gameDAO;
   private AuthDAO authDAO;
-  private final ConnectionManager connections = new ConnectionManager();
-  private final Gson gson = new Gson();
+  private final ConnectionManager connections=new ConnectionManager();
+  private final Gson gson=new Gson();
   private String currentUsername;
-  private ChessGame currGame;
+  private GameData currGame;
 
-  public WSHandler() {}
+  public WSHandler() {
+  }
 
   public WSHandler(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
-    this.authDAO = authDAO;
-    this.gameDAO = gameDAO;
-    this.userDAO = userDAO;
+    this.authDAO=authDAO;
+    this.gameDAO=gameDAO;
   }
 
   @OnWebSocketMessage
   public void onMessage(Session session, String message) {
     try {
-      UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
+      UserGameCommand userGameCommand=gson.fromJson(message, UserGameCommand.class);
       switch (userGameCommand.getCommandType()) {
         case CONNECT -> connect(session, new Gson().fromJson(message, Connect.class));
         case MAKE_MOVE -> makeGameMove(session, new Gson().fromJson(message, MakeMove.class));
@@ -50,7 +51,7 @@ public class WSHandler {
       }
     } catch (Exception e) {
       try {
-        ErrorMessage error = new ErrorMessage("Error: " + e.getMessage());
+        ErrorMessage error=new ErrorMessage("Error: " + e.getMessage());
         session.getRemote().sendString(gson.toJson(error));
       } catch (IOException ex) {
         System.err.println("Failed to send error message: " + ex.getMessage());
@@ -67,15 +68,16 @@ public class WSHandler {
 
       System.out.println("Connect request received for game: " + connect.getGameID());
 
-      int gameID = connect.getGameID();
-      var gameData = gameDAO.getGame(gameID);
+      int gameID=connect.getGameID();
+      var gameData=gameDAO.getGame(gameID);
+
       if (gameData == null) {
         sendError(session, "Error: game not found");
         return;
       }
 
-      String authToken = connect.getAuthToken();
-      var authData = authDAO.getAuth(authToken);
+      String authToken=connect.getAuthToken();
+      var authData=authDAO.getAuth(authToken);
       if (authData == null) {
         sendError(session, "Error: unauthorized");
         return;
@@ -83,11 +85,11 @@ public class WSHandler {
 
       System.out.println("Creating notification for user: " + authData.username());
 
-      currentUsername = authData.username();
-      ChessGame chessGame = gameData.game();
-      ChessGame.TeamColor teamColor = connect.getColor();
+      currentUsername=authData.username();
+      ChessGame chessGame=gameData.game();
+      ChessGame.TeamColor teamColor=connect.getColor();
 
-      LoadGameMessage loadGameMessage = new LoadGameMessage(chessGame);
+      LoadGameMessage loadGameMessage=new LoadGameMessage(chessGame);
       if (loadGameMessage.getGame() == null) {
         sendError(session, "Error: invalid game state");
         return;
@@ -96,8 +98,8 @@ public class WSHandler {
       System.out.println("Sending load game message: " + gson.toJson(loadGameMessage));
       session.getRemote().sendString(gson.toJson(loadGameMessage));
 
-      String teamColorStr = (teamColor != null) ? " as " + teamColor : " as an observer";
-      NotificationMessage notification = new NotificationMessage(currentUsername + " joined the game" + teamColorStr);
+      String teamColorStr=(teamColor != null) ? " as " + teamColor : " as an observer";
+      NotificationMessage notification=new NotificationMessage(currentUsername + " joined the game" + teamColorStr);
 
       System.out.println("Sending notification: " + gson.toJson(notification));
 
@@ -120,14 +122,24 @@ public class WSHandler {
 
   private void makeGameMove(Session session, MakeMove moveCommand) throws Exception {
 
-    var authData = authDAO.getAuth(moveCommand.getAuthToken());
-    String currUsername = authData.username();
-    Connection playerConnection = new Connection(currUsername, session, moveCommand.getAuthToken());
-    ChessMove move = moveCommand.getMove();
+    var authData=authDAO.getAuth(moveCommand.getAuthToken());
+    String currUsername=authData.username();
+    Connection playerConnection=new Connection(currUsername, session, moveCommand.getAuthToken());
+    ChessMove move=moveCommand.getMove();
 
-    validateMove(move);
-    var gameData = gameDAO.getGame(moveCommand.getGameID());
-    currGame =gameData.game();
+    var gameData=gameDAO.getGame(moveCommand.getGameID());
+    currGame=gameData;
+    ChessGame.TeamColor currColor = null;
+
+    if(Objects.equals(gameData.whiteUsername(), currUsername)){
+      currColor = ChessGame.TeamColor.WHITE;
+    } else if (Objects.equals(gameData.blackUsername(), currUsername)) {
+      currColor = ChessGame.TeamColor.BLACK;
+    }
+
+    if (!validateMove(moveCommand, session, currColor)) {
+      return;
+    }
     try {
       gameData.game().makeMove(move);
       updateGameState(moveCommand.getGameID(), move, currUsername);
@@ -137,36 +149,51 @@ public class WSHandler {
     }
   }
 
-  private void validateMove(ChessMove move) throws ResponseException {
-    ChessPiece piece = currGame.getBoard().getPiece(move.getStartPosition());
-    if (piece == null) {
-      throw new ResponseException(400, "Error: no piece at starting position");
+  private Boolean validateMove(MakeMove moveCommand, Session session, ChessGame.TeamColor currColor) throws ResponseException, IOException {
+    ChessPiece piece=currGame.game().getBoard().getPiece(moveCommand.getMove().getStartPosition());
+    if (currGame.game().getBoard().getPiece(moveCommand.getMove().getStartPosition()).getTeamColor() != currColor) {
+      sendError(session, "You can't move other team's pieces");
+      return false;
+    }
+    if (currGame.game().getTeamTurn() != currColor) {
+      sendError(session, "Please wait until your turn");
+      return false;
     }
 
-    currGame.setTeamTurn(piece.getTeamColor());
+    if (piece == null) {
+      sendError(session, "No piece at this location");
+      return false;
+    }
+
+    if (currColor == null) {
+      sendError(session, "You are only an observer");
+      return false;
+    }
+    currGame.game().setTeamTurn(piece.getTeamColor());
+    return true;
   }
 
   private void updateGameState(int gameId, ChessMove move, String playerName) throws DataAccessException, IOException {
-    ChessPiece movedPiece = currGame.getBoard().getPiece(move.getEndPosition());
-    ChessPosition endPos = move.getEndPosition();
+    ChessPiece movedPiece=currGame.game().getBoard().getPiece(move.getEndPosition());
+    ChessPosition endPos=move.getEndPosition();
 
-    String moveDescription = String.format("%s has moved %s to %d,%d",
+    String moveDescription=String.format("%s has moved %s to %d,%d",
             playerName,
             movedPiece.getPieceType(),
             endPos.getRow(),
             endPos.getColumn());
 
-    ServerMessage notification = new NotificationMessage(moveDescription);
-    ServerMessage loadMessage = new LoadGameMessage(currGame);
+    ServerMessage notification=new NotificationMessage(moveDescription);
+    ServerMessage loadMessage=new LoadGameMessage(currGame.game());
 
     gameDAO.setGame(gameId, currGame);
-    connections.broadcast(currentUsername, loadMessage);
+    connections.broadcast("", loadMessage);
     connections.broadcast(playerName, notification);
   }
 
   private void handleInvalidMove(Connection playerConnection) throws IOException {
-    String errorMsg = "It's not your turn, please wait for the other player.";
-    ServerMessage error = new NotificationMessage(errorMsg);
+    String errorMsg="It's not your turn, please wait for the other player.";
+    ServerMessage error=new ErrorMessage(errorMsg);
     playerConnection.send(error);
   }
 
@@ -175,7 +202,7 @@ public class WSHandler {
   }
 
   private void sendError(Session session, String message) throws IOException {
-    ErrorMessage error = new ErrorMessage(message);
+    ErrorMessage error=new ErrorMessage(message);
     System.out.println("Sending error message: " + gson.toJson(error));
     session.getRemote().sendString(gson.toJson(error));
   }
