@@ -1,8 +1,14 @@
 package websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exceptions.ResponseException;
-import websocketnotifications.Notification;
+import websocket.commands.JoinPlayer;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificaitonMessage;
+import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -26,7 +32,24 @@ public class WSClient extends Endpoint {
       this.session.addMessageHandler(new MessageHandler.Whole<String>() {
         @Override
         public void onMessage(String message) {
-          Notification notification=new Gson().fromJson(message, Notification.class);
+          ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+          switch(serverMessage.getServerMessageType())
+          {
+            case NOTIFICATION -> {
+              NotificaitonMessage notification = new Gson().fromJson(message, NotificaitonMessage.class);
+              notificationHandler.notify(notification);
+            }
+            case LOAD_GAME -> {
+              LoadGameMessage notification = new Gson().fromJson(message, LoadGameMessage.class);
+              notificationHandler.updateGame(notification);
+            }
+            case ERROR -> {
+              ErrorMessage error = new Gson().fromJson(message, ErrorMessage.class);
+              notificationHandler.notify(error);
+            }
+          }
+
+          ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
           notificationHandler.notify(notification);
         }
       });
@@ -34,6 +57,17 @@ public class WSClient extends Endpoint {
       throw new ResponseException(500, ex.getMessage());
     }
   }
+
+  public void joinPlayer(int gameID, String authToken, String username, ChessGame.TeamColor teamColor) throws ResponseException {
+    try {
+      UserGameCommand joinPlayerCommand = new JoinPlayer(authToken, gameID, teamColor, username);
+      this.session.getBasicRemote().sendText(new Gson().toJson(joinPlayerCommand));
+    }
+    catch (IOException ex) {
+      throw new ResponseException(500, ex.getMessage());
+    }
+  }
+
 
   @Override
   public void onOpen(Session session, EndpointConfig endpointConfig) {

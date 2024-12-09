@@ -8,24 +8,36 @@ import model.UserData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import response.CreateGameResponse;
+import websocket.NotificationHandler;
 import websocket.WSClient;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificaitonMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class  ChessClient {
+import static ui.EscapeSequences.SET_TEXT_COLOR_YELLOW;
+
+public class  ChessClient implements NotificationHandler {
         private String visitorName = null;
         private final ServerFacade server;
         private State state = State.SIGNEDOUT;
+        private AuthData currentUser;
         private Boolean activeGame = false;
         private GameData currGameData;
         private ChessGame.TeamColor currTeamColor;
         private WSClient ws;
+        private String serverUrl;
+        private int currGameID;
+
 
 
     public ChessClient(String serverUrl) {
-            server = new ServerFacade(serverUrl);
+
+        server = new ServerFacade(serverUrl);
+        this.serverUrl = serverUrl;
         }
 
         public String eval(String input) {
@@ -106,10 +118,15 @@ public class  ChessClient {
             try{
                 JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(), gameData.gameID());
                 server.joinGame(request);
+                ws = new WSClient(serverUrl, this);
+
                 if(!Objects.equals(params[1], "black")){
                     currTeamColor = ChessGame.TeamColor.BLACK;
+                    ws.joinPlayer(currGameID, currentUser.authToken(), currentUser.username(), ChessGame.TeamColor.BLACK);
                 }else{
                     currTeamColor = ChessGame.TeamColor.WHITE;
+                    ws.joinPlayer(currGameID, currentUser.authToken(), currentUser.username(), ChessGame.TeamColor.WHITE);
+
                 }
             } catch (ResponseException e) {
                 return "That color is full for that game";
@@ -199,7 +216,7 @@ public class  ChessClient {
             UserData userData = new UserData(params);
             visitorName = params[0];
             try {
-                server.registerUser(userData);
+                currentUser = server.registerUser(userData);
             }catch (ResponseException e){
                 return "Username already taken";
             }
@@ -262,4 +279,13 @@ public class  ChessClient {
         return "current board drawn";
     }
 
+    @Override
+    public void notify(ServerMessage notification) {
+        System.out.println(SET_TEXT_COLOR_YELLOW + notification.getMessage());
+    }
+
+    @Override
+    public void updateGame(LoadGameMessage loadGameMessage) {
+
+    }
 }

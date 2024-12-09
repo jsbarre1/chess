@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
-
+    String message;
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,
@@ -23,6 +23,9 @@ public class ServerMessage {
 
     public ServerMessage() {}
 
+    public String getMessage() {
+        return message;
+    }
 
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
