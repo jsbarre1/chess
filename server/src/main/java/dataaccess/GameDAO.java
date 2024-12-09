@@ -15,5 +15,6 @@ public interface GameDAO {
     GameData getGame(Integer id) throws DataAccessException, ResponseException;
     public Map<Integer, GameData> addPlayerToGame(GameData oldGame, String playerColor, String username)throws DataAccessException;
     void setGame(Integer gameID, GameData game) throws DataAccessException;
+    void removePlayer(GameData oldGame, String playerColor, String username) throws DataAccessException;
 
 }

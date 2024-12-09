@@ -4,10 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import exceptions.ResponseException;
-import websocket.commands.Connect;
-import websocket.commands.MakeMove;
-import websocket.commands.Resign;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -84,6 +81,12 @@ public class WSClient extends Endpoint {
   public void resign(int gameID, String authToken) throws ResponseException {
     UserGameCommand resignCommand=new Resign(authToken, gameID);
     String message=new Gson().toJson(resignCommand);
+    sendMessage(message);
+  }
+
+  public void leave(int gameID, String authToken) throws ResponseException {
+    UserGameCommand leaveCommand = new Leave(authToken, gameID);
+    String message = new Gson().toJson(leaveCommand);
     sendMessage(message);
   }
 

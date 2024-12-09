@@ -142,6 +142,23 @@ public class SQLGameDAO implements GameDAO{
         }
     }
 
+    @Override
+    public void removePlayer(GameData oldGame, String playerColor, String username) throws DataAccessException {
+        var statement = "UPDATE game SET whiteUsername = ?, blackUsername = ?, json = ? WHERE gameID = ?";
+        try{
+            GameData newerGame;
+            if(Objects.equals(playerColor, "WHITE")){
+                newerGame = new GameData(oldGame.gameID(), username, oldGame.blackUsername(), oldGame.gameName(), oldGame.game());
+            }else{
+                newerGame = new GameData(oldGame.gameID(),oldGame.whiteUsername(), username, oldGame.gameName(), oldGame.game());
+            }
+
+            var json = new Gson().toJson(newerGame);
+            executeUpdateGame(statement, newerGame.whiteUsername(), newerGame.blackUsername(), json, newerGame.gameID());
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
 
 
     private int executeUpdateGame(String gameStatement, Object... gameParams) throws ResponseException {

@@ -266,8 +266,9 @@ public class ChessClient implements NotificationHandler {
             """;
   }
 
-  public String leave() {
+  public String leave() throws ResponseException {
     activeGame=false;
+    ws.leave(currGameID, currentUser.authToken());
     return "successfully left game";
   }
 

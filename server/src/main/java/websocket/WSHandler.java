@@ -13,10 +13,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
-import websocket.commands.Connect;
-import websocket.commands.MakeMove;
-import websocket.commands.Resign;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -50,7 +47,7 @@ public class WSHandler {
         case CONNECT -> connect(session, new Gson().fromJson(message, Connect.class));
         case MAKE_MOVE -> makeGameMove(session, new Gson().fromJson(message, MakeMove.class));
         case RESIGN -> resign(session, new Gson().fromJson(message, Resign.class));
-        case LEAVE -> handleLeave(session);
+        case LEAVE -> handleLeave(session, new Gson().fromJson(message, Leave.class));
       }
     } catch (Exception e) {
       try {
@@ -269,8 +266,39 @@ public class WSHandler {
     playerConnection.send(error);
   }
 
-  private void handleLeave(Session session) {
-    connections.remove(currentUsername);
+  private void handleLeave(Session session, Leave command) throws IOException {
+    try {
+      AuthData authData = authDAO.getAuth(command.getAuthToken());
+      if (authData == null) {
+        sendError(session, "Error: unauthorized");
+        return;
+      }
+
+      GameData gameData = gameDAO.getGame(command.getGameID());
+      if (gameData == null) {
+        sendError(session, "Error: game not found");
+        return;
+      }
+
+      NotificationMessage notification = new NotificationMessage(authData.username() + " has left the game");
+      connections.broadcast(authData.username(), notification);
+
+      if(Objects.equals(gameData.whiteUsername(), authData.username())){
+        gameDAO.removePlayer(gameData, "WHITE", null);
+      }
+
+      if(Objects.equals(gameData.blackUsername(), authData.username())){
+        gameDAO.removePlayer(gameData, "BLACK", null);
+      }
+
+      connections.remove(authData.username());
+      session.close();
+
+    } catch (DataAccessException e) {
+      sendError(session, "Error: database access failed");
+    } catch (ResponseException e) {
+      sendError(session, "Error: not authorized");
+    }
   }
 
   private void sendError(Session session, String message) throws IOException {

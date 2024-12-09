@@ -82,6 +82,11 @@ public class MemoryGameDAO implements GameDAO{
 
     }
 
+    @Override
+    public void removePlayer(GameData oldGame, String playerColor, String username) throws DataAccessException {
+
+    }
+
     ;
 
 
