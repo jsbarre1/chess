@@ -21,19 +21,27 @@ public class ConnectionManager {
   }
 
   public void broadcast(String username, ServerMessage notification) throws IOException {
-    var removeList = new ArrayList<Connection>();
+    if (notification == null) {
+      throw new IOException("Cannot broadcast null message");
+    }
+
+    var removeList=new ArrayList<Connection>();
     for (var c : connections.values()) {
-      if (c.session.isOpen()) {
-        if (!c.username.equals(username)) {
-          c.send(notification);
+      try {
+        if (c.session.isOpen()) {
+          if (!c.username.equals(username)) {
+            c.send(notification);
+          }
+        } else {
+          removeList.add(c);
         }
-      } else {
+      } catch (Exception e) {
         removeList.add(c);
+        System.err.println("Error broadcasting to user: " + c.username + " - " + e.getMessage());
       }
     }
 
-
-    // Clean up any connections that were left open.
+    // Clean up closed connections
     for (var c : removeList) {
       connections.remove(c.username);
     }

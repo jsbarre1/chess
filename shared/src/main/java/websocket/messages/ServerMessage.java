@@ -9,8 +9,8 @@ import java.util.Objects;
  * methods.
  */
 public class ServerMessage {
-    ServerMessageType serverMessageType;
-    String message;
+    protected ServerMessageType serverMessageType;
+    protected String message;
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,

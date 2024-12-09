@@ -16,7 +16,7 @@ public class UserFunctions {
         return userDAO.getUser(username);
     }
 
-    public void addUser(UserData userData) throws DataAccessException{
+    public void addUser(UserData userData) throws DataAccessException, ResponseException {
         userDAO.addUser(userData);
     }
 

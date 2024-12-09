@@ -42,7 +42,7 @@ public class DrawBoard {
         out.print(RESET_TEXT_COLOR);
     }
 
-    private void printWhite(){
+    private void printBlack(){
         out.print(ERASE_SCREEN);
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_BOLD);
@@ -72,7 +72,7 @@ public class DrawBoard {
         out.print("\n");
     }
 
-    private void printBlack(){
+    private void printWhite(){
         out.print(ERASE_SCREEN);
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_BOLD);

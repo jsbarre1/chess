@@ -17,11 +17,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
 import static ui.EscapeSequences.SET_TEXT_COLOR_YELLOW;
 
 public class  ChessClient implements NotificationHandler {
         private String visitorName = null;
-        private final ServerFacade server;
+        private final ServerFacade serverFacade;
         private State state = State.SIGNEDOUT;
         private AuthData currentUser;
         private Boolean activeGame = false;
@@ -35,7 +36,7 @@ public class  ChessClient implements NotificationHandler {
 
     public ChessClient(String serverUrl) {
 
-        server = new ServerFacade(serverUrl);
+        serverFacade= new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         }
 
@@ -84,7 +85,7 @@ public class  ChessClient implements NotificationHandler {
     private String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
             CreateGameRequest request = new CreateGameRequest(params[0]);
-            CreateGameResponse response = server.createChessGame(request);
+            CreateGameResponse response = serverFacade.createChessGame(request);
             return "successfully created game";
         }
         throw new ResponseException(400, "Wrong format for create... Expected: <GAMENAME> ");
@@ -102,7 +103,7 @@ public class  ChessClient implements NotificationHandler {
             if(!Objects.equals(params[1], "black") && !Objects.equals(params[1], "white")){
                 return "please choose WHITE or BLACK";
             }
-            ArrayList<GameData> games = server.listChessGames();
+            ArrayList<GameData> games = serverFacade.listChessGames();
 
             if(parsedInt > games.size()){
                 return "enter valid ID";
@@ -113,13 +114,14 @@ public class  ChessClient implements NotificationHandler {
 
             GameData gameData = games.get(parsedInt-1);
             currGameData= gameData;
+            currGameID = gameData.gameID();
 
             try{
                 JoinGameRequest request = new JoinGameRequest(params[1].toUpperCase(), gameData.gameID());
-                server.joinGame(request);
+                serverFacade.joinGame(request);
                 ws = new WSClient(serverUrl, this);
 
-                if(!Objects.equals(params[1], "black")){
+                if(Objects.equals(params[1], "black")){
                     currTeamColor = ChessGame.TeamColor.BLACK;
                     ws.joinPlayer(currGameID, currentUser.authToken(), ChessGame.TeamColor.BLACK);
                 }else{
@@ -131,15 +133,14 @@ public class  ChessClient implements NotificationHandler {
                 return "That color is full for that game";
             }
 
-            DrawBoard drawBoard = new DrawBoard(gameData.game().getBoard());
-            drawBoard.printBoards();
-
             activeGame = true;
 
-            return "successfully joined game";
+            DrawBoard drawBoard = new DrawBoard(gameData.game().getBoard());
+            drawBoard.printBoard(currTeamColor, gameData.game(),null);
+
+            return "successfully joined game as " + currTeamColor;
         }
         throw new ResponseException(400, "Wrong format for join... Expected: <ID> [WHITE|BLACK] ");
-
     }
 
     private String observeGame(String... params) throws ResponseException {
@@ -150,7 +151,7 @@ public class  ChessClient implements NotificationHandler {
             }catch (NumberFormatException e ){
                 return "please input a number for the ID";
             }
-            ArrayList<GameData> games = server.listChessGames();
+            ArrayList<GameData> games = serverFacade.listChessGames();
 
             if(parsedInt > games.size()){
                 return "enter valid ID";
@@ -171,7 +172,7 @@ public class  ChessClient implements NotificationHandler {
     }
 
     private String listGames() throws ResponseException {
-        ArrayList<GameData> gameData = server.listChessGames();
+        ArrayList<GameData> gameData = serverFacade.listChessGames();
         StringBuilder result = new StringBuilder();
         int i = 1;
         for (GameData game : gameData) {
@@ -192,7 +193,7 @@ public class  ChessClient implements NotificationHandler {
                 UserData userData = new UserData(params[0], params[1], null);
                 AuthData authData;
                 try {
-                    authData = server.loginUser(userData);
+                    authData = serverFacade.loginUser(userData);
                 }catch (ResponseException e){
                     return "Username or password incorrect";
                 }
@@ -205,7 +206,7 @@ public class  ChessClient implements NotificationHandler {
     }
 
     public String logout() throws ResponseException {
-        server.logoutUser();
+        serverFacade.logoutUser();
         state = State.SIGNEDOUT;
         visitorName = null;
         return "Successfully logged out";
@@ -216,7 +217,7 @@ public class  ChessClient implements NotificationHandler {
             UserData userData = new UserData(params);
             visitorName = params[0];
             try {
-                currentUser = server.registerUser(userData);
+                currentUser = serverFacade.registerUser(userData);
             }catch (ResponseException e){
                 return "Username already taken";
             }
@@ -280,8 +281,17 @@ public class  ChessClient implements NotificationHandler {
     }
 
     @Override
-    public void notify(ServerMessage notification) {
-        System.out.println(SET_TEXT_COLOR_YELLOW + notification.getMessage());
+    public void notify(ServerMessage message) {
+        if (message == null) {
+            System.out.println(SET_TEXT_COLOR_RED + "Received null message");
+            return;
+        }
+
+        switch (message.getServerMessageType()) {
+            case ERROR -> System.out.println(SET_TEXT_COLOR_RED + message.getMessage());
+            case NOTIFICATION -> System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
+            default -> System.out.println(SET_TEXT_COLOR_YELLOW + "Unknown message type: " + message.getMessage());
+        }
     }
 
     @Override

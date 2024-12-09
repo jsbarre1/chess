@@ -36,14 +36,22 @@ public class SQLUserDAO implements UserDAO{
         executeUpdateUser(statement);
     }
 
-    public void addUser(UserData userData) throws DataAccessException {
+    public void addUser(UserData userData) throws DataAccessException, ResponseException {
+        // First check if user already exists
+        if (getUser(userData.username()) != null) {
+            throw new DataAccessException("Error: already taken");
+        }
+
         var statement = "INSERT INTO user (username, password, email, json) VALUES (?, ?, ?, ?)";
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
 
-        try{
+        try {
             var json = new Gson().toJson(userData);
             executeUpdateUser(statement, userData.username(), hashedPassword, userData.email(), json);
         } catch (Exception e) {
+            if (e.getMessage().contains("UNIQUE constraint") || e.getMessage().contains("duplicate")) {
+                throw new DataAccessException("Error: already taken");
+            }
             throw new DataAccessException(e.getMessage());
         }
     }

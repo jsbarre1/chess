@@ -41,7 +41,7 @@ public class WSHandler {
     try {
       UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
       switch (userGameCommand.getCommandType()) {
-        case CONNECT -> connect(session, message);
+        case CONNECT -> connect(session, new Gson().fromJson(message, Connect.class));
         case LEAVE -> handleLeave(session);
       }
     } catch (Exception e) {
@@ -54,9 +54,14 @@ public class WSHandler {
     }
   }
 
-  private void connect(Session session, String message) throws IOException {
+  private void connect(Session session, Connect connect) throws IOException {
     try {
-      Connect connect = gson.fromJson(message, Connect.class);
+      if (connect == null) {
+        sendError(session, "Error: invalid connection request");
+        return;
+      }
+
+      System.out.println("Connect request received for game: " + connect.getGameID());
 
       int gameID = connect.getGameID();
       var gameData = gameDAO.getGame(gameID);
@@ -72,24 +77,39 @@ public class WSHandler {
         return;
       }
 
-      currentUsername= authData.username();
+      System.out.println("Creating notification for user: " + authData.username());
+
+      currentUsername = authData.username();
       ChessGame chessGame = gameData.game();
       ChessGame.TeamColor teamColor = connect.getColor();
 
-      // Send game state
       LoadGameMessage loadGameMessage = new LoadGameMessage(chessGame);
+      if (loadGameMessage.getGame() == null) {
+        sendError(session, "Error: invalid game state");
+        return;
+      }
+
+      System.out.println("Sending load game message: " + gson.toJson(loadGameMessage));
       session.getRemote().sendString(gson.toJson(loadGameMessage));
 
-      // Send notification
-      String teamColorStr = (teamColor != null) ? " as " + teamColor.toString() : " as an observer";
-      NotificationMessage notification= new NotificationMessage(currentUsername + " joined the game" + teamColorStr);
+      String teamColorStr = (teamColor != null) ? " as " + teamColor : " as an observer";
+      NotificationMessage notification = new NotificationMessage(currentUsername + " joined the game" + teamColorStr);
+
+      System.out.println("Sending notification: " + gson.toJson(notification));
 
       connections.add(currentUsername, session, authToken);
-      connections.broadcast(currentUsername, notification);
+
+      try {
+        connections.broadcast(currentUsername, notification);
+      } catch (IOException e) {
+        System.err.println("Failed to broadcast notification: " + e.getMessage());
+      }
 
     } catch (DataAccessException e) {
+      System.err.println("Database error: " + e.getMessage());
       sendError(session, "Error: database access failed");
     } catch (ResponseException e) {
+      System.err.println("Response error: " + e.getMessage());
       sendError(session, "Error: " + e.getMessage());
     }
   }
@@ -100,6 +120,7 @@ public class WSHandler {
 
   private void sendError(Session session, String message) throws IOException {
     ErrorMessage error = new ErrorMessage(message);
+    System.out.println("Sending error message: " + gson.toJson(error));
     session.getRemote().sendString(gson.toJson(error));
   }
 }
